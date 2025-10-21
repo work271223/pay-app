@@ -326,7 +326,9 @@ function Row({
 }
 
 const Pill = ({ children }: { children: ReactNode }) => (
-	<span className="rounded-full bg-secondary px-2.5 py-1 text-xs">{children}</span>
+	<span className="rounded-full border border-[#2f3847] bg-[#1c2330] px-2.5 py-1 text-xs font-medium text-neutral-100">
+		{children}
+	</span>
 );
 
 type StatProps = {
@@ -537,29 +539,16 @@ function Intro({ onStart }: { onStart: () => void }) {
 			<motion.div
 				initial={{ opacity: 0, y: 16 }}
 				animate={{ opacity: 1, y: 0 }}
-				className="relative overflow-hidden rounded-[28px] border border-[#2a2f3a] p-6 text-[#111827] shadow-[0_14px_60px_rgba(255,155,0,0.35)]"
-				style={{
-					background: "linear-gradient(135deg,#FFE680 0%,#FFB322 45%,#FF9300 100%)",
-				}}
+				className="rounded-[28px] border border-[#2a2f3a] bg-[#0f1115] p-6 text-neutral-100 shadow-[0_18px_60px_rgba(15,17,21,0.55)]"
 			>
-				<div className="relative z-10 space-y-4">
-					<div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1 text-sm font-medium shadow-sm backdrop-blur">
-						<Sparkles className="h-4 w-4" /> Новый выпуск • 1 минута
+				<div className="space-y-4">
+					<div className="inline-flex items-center gap-2 rounded-full bg-[#F5A623]/15 px-3 py-1 text-xs font-semibold text-[#F5A623]">
+						<Sparkles className="h-4 w-4" /> Выпуск за 1 минуту
 					</div>
 					<div className="text-2xl font-bold leading-tight">Виртуальная карта BYBIT</div>
-					<div className="max-w-prose text-sm leading-6 text-black/70">
-						Пополняй USDT и плати в онлайне и офлайне через Google Pay и Apple Pay. Кэшбэк по рефералке 50%.
+					<div className="max-w-prose text-sm leading-6 text-neutral-300">
+						Пополните баланс в USDT и оплачивайте покупки через Google Pay и Apple Pay. Кэшбэк и бонусы начисляются мгновенно.
 					</div>
-					<Button
-						data-testid="open-account"
-						onClick={onStart}
-						className="relative h-12 w-full rounded-2xl bg-[#111827] text-base text-white hover:bg-black"
-					>
-						<span className="relative z-10 flex items-center justify-center gap-2">
-							Открыть виртуальный счет BYBIT
-							<ArrowRight className="h-4 w-4" />
-						</span>
-					</Button>
 				</div>
 			</motion.div>
 
@@ -570,6 +559,30 @@ function Intro({ onStart }: { onStart: () => void }) {
 				<IntegrationsIntroCard />
 				<RefIntroCard />
 			</div>
+
+			<motion.div
+				initial={{ opacity: 0, y: 16 }}
+				animate={{ opacity: 1, y: 0 }}
+				className="relative overflow-hidden rounded-[28px] border border-[#F5A623]/50 bg-gradient-to-br from-[#FFD166] via-[#F5A623] to-[#f27f19] p-6 text-[#111827] shadow-[0_18px_60px_rgba(245,166,35,0.45)]"
+			>
+				<div className="relative z-10 space-y-4">
+					<div className="text-xs font-semibold uppercase tracking-wide text-black/70">Готовы начать?</div>
+					<div className="text-2xl font-bold leading-tight">Открой виртуальную карту BYBIT</div>
+					<div className="max-w-prose text-sm leading-6 text-black/70">
+						Пополните от 100 USDT и активируйте полный доступ к кэшбэку 20% и повышенным бонусам.
+					</div>
+					<Button
+						data-testid="open-account"
+						onClick={onStart}
+						className="h-12 w-full rounded-2xl bg-[#111827] text-base text-white hover:bg-black"
+					>
+						<span className="flex items-center justify-center gap-2">
+							Открыть карту
+							<ArrowRight className="h-4 w-4" />
+						</span>
+					</Button>
+				</div>
+			</motion.div>
 		</div>
 	);
 }
@@ -1176,35 +1189,49 @@ function WithdrawDialog({ state }: { state: AppState }) {
 
 function FeesIntroCard() {
 	return (
-		<Card className="rounded-3xl border-[#2a2f3a]">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-base">Комиссии и лимиты</CardTitle>
-				<CardDescription>Первые 6 месяцев — 0</CardDescription>
-			</CardHeader>
-			<CardContent className="space-y-3 text-sm">
-				<div className="rounded-xl border border-[#F5A623]/40 bg-[#F5A623]/20 px-3 py-2 font-medium text-[#111827]">
-					0 USDT первые 6 месяцев на выпуск, обслуживание, пополнения и выводы
-				</div>
-				<div className="flex items-center justify-between">
-					<span>Оплата в магазинах</span>
-					<span className="font-semibold">0 USDT (всегда)</span>
-				</div>
-			</CardContent>
-		</Card>
+		<motion.div whileHover={{ y: -2 }}>
+			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-base text-white">Комиссии и лимиты</CardTitle>
+					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
+						Первые 6 месяцев — 0
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-3 text-sm text-neutral-300">
+					<div className="rounded-2xl bg-[#161d29] p-3">
+						<span className="font-semibold text-[#F5A623]">0 USDT</span> на выпуск, обслуживание, пополнение и выводы.
+					</div>
+					<div className="flex items-center justify-between text-xs tracking-wide text-neutral-400">
+						<span className="uppercase">Оплата в магазинах</span>
+						<span className="font-semibold text-neutral-200">0 USDT</span>
+					</div>
+				</CardContent>
+			</Card>
+		</motion.div>
 	);
 }
 
 function BonusIntroCard() {
 	return (
 		<motion.div whileHover={{ y: -2 }}>
-			<Card className="overflow-hidden rounded-3xl">
-				<div className="p-5" style={{ background: "linear-gradient(135deg,#9be15d,#00e3ae)" }}>
-					<div className="font-semibold text-white">Бонус за первое пополнение</div>
-					<ul className="mt-3 space-y-1 text-sm text-white">
-						<li>• ≥ $100 — +100%</li>
-						<li>• ≥ $500 — +200%</li>
-					</ul>
-				</div>
+			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-base text-white">Бонус за первое пополнение</CardTitle>
+					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
+						До ×2 на баланс
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-3 text-sm text-neutral-300">
+					<div className="grid gap-2">
+						<div className="rounded-xl bg-[#172224] px-3 py-2 text-sm">
+							<span className="font-semibold text-[#7ef29d]">+100%</span> при пополнении от $100
+						</div>
+						<div className="rounded-xl bg-[#172224] px-3 py-2 text-sm">
+							<span className="font-semibold text-[#7ef29d]">+200%</span> при пополнении от $500
+						</div>
+					</div>
+					<p>Бонусы начисляются мгновенно и доступны для оплаты любых покупок.</p>
+				</CardContent>
 			</Card>
 		</motion.div>
 	);
@@ -1213,11 +1240,21 @@ function BonusIntroCard() {
 function CashbackIntroCard() {
 	return (
 		<motion.div whileHover={{ y: -2 }}>
-			<Card className="overflow-hidden rounded-3xl">
-				<div className="p-5" style={{ background: "linear-gradient(135deg,#5ee7df,#b490ca)" }}>
-					<div className="font-semibold text-white">Кэшбэк</div>
-					<div className="mt-1 text-sm text-white/90">После пополнения от $100 активируется кэшбэк 20% на все покупки</div>
-				</div>
+			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-base text-white">Кэшбэк 20%</CardTitle>
+					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
+						После пополнения от $100
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-2 text-sm text-neutral-300">
+					<p>
+						Каждая покупка возвращает <span className="font-semibold text-[#7ef29d]">20% в USDT</span> на баланс карты.
+					</p>
+					<p className="text-xs text-neutral-500">
+						Кэшбэк приходит автоматически и может быть выведен или потрачен повторно.
+					</p>
+				</CardContent>
 			</Card>
 		</motion.div>
 	);
@@ -1225,33 +1262,42 @@ function CashbackIntroCard() {
 
 function IntegrationsIntroCard() {
 	return (
-		<Card className="rounded-3xl border-[#2a2f3a]">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-base">Интеграции</CardTitle>
-				<CardDescription>Оплата в одно касание</CardDescription>
-			</CardHeader>
-			<CardContent className="flex gap-2">
-				<Pill>Apple Pay</Pill>
-				<Pill>Google Pay</Pill>
-				<Pill>Bybit Wallet</Pill>
-			</CardContent>
-		</Card>
+		<motion.div whileHover={{ y: -2 }}>
+			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-base text-white">Интеграции</CardTitle>
+					<CardDescription className="text-xs text-neutral-400 uppercase tracking-wide">Оплата в одно касание</CardDescription>
+				</CardHeader>
+				<CardContent className="flex flex-wrap gap-2">
+					<Pill>Apple Pay</Pill>
+					<Pill>Google Pay</Pill>
+					<Pill>Bybit Wallet</Pill>
+				</CardContent>
+			</Card>
+		</motion.div>
 	);
 }
 
 function RefIntroCard() {
 	return (
-		<Card className="rounded-3xl border-[#2a2f3a]">
-			<CardHeader className="pb-2">
-				<CardTitle className="text-base">Реферальная программа</CardTitle>
-				<CardDescription>50% от комиссии пополнения</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<div className="text-sm text-muted-foreground">
-					Приглашай друзей и получай 50% от сумм их пополнений как бонус на баланс.
-				</div>
-			</CardContent>
-		</Card>
+		<motion.div whileHover={{ y: -2 }}>
+			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-base text-white">Реферальная программа</CardTitle>
+					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
+						50% от комиссии пополнения
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="space-y-2 text-sm text-neutral-300">
+					<p>
+						Приглашай друзей и получай до <span className="font-semibold text-[#7ef29d]">+50%</span> от их пополнений в виде бонусов.
+					</p>
+					<div className="rounded-2xl bg-[#161d29] p-3 text-xs uppercase tracking-wide text-neutral-400">
+						Персональные коды и ссылки доступны сразу после выпуска карты.
+					</div>
+				</CardContent>
+			</Card>
+		</motion.div>
 	);
 }
 
