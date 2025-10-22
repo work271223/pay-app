@@ -975,12 +975,52 @@ function CardsScreen({ state }: { state: AppState }) {
 
 	return (
 		<div className="space-y-4">
+			{/* Order physical card block */}
+			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
+				<CardHeader>
+					<CardTitle>Заказать физическую карту</CardTitle>
+					<CardDescription>Получите реальную карту BYBIT для офлайн-платежей</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between gap-4">
+						<div className="text-sm text-neutral-300">Закажите физическую карту и получите доставку в вашу страну.</div>
+						<a href="https://www.bybit.com/en/cards/" target="_blank" rel="noreferrer">
+							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Заказать</Button>
+						</a>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Brazil Bybit Pay info block */}
+			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
+				<CardHeader>
+					<CardTitle>Bybit Pay — Бразилия</CardTitle>
+					<CardDescription>Доступно для резидентов Бразилии (только с KYC)</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="flex items-center justify-between gap-4">
+						<div className="text-sm text-neutral-300">Для резидентов Бразилии доступно подключение Bybit Pay (требуется KYC).</div>
+						<a href="https://www.bybit.com/en/bybitpay/" target="_blank" rel="noreferrer">
+							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Узнать подробности</Button>
+						</a>
+					</div>
+				</CardContent>
+			</Card>
 			<Card className="rounded-3xl">
 				<CardHeader>
 					<CardTitle>Интеграции</CardTitle>
 					<CardDescription>Оплата в одно касание</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
+					{options.map((opt) => (
+						<div key={opt.label} className="flex items-center justify-between rounded-2xl border p-3">
+							<div>
+								<div className="font-medium">{opt.label}</div>
+								<div className="text-xs text-muted-foreground">{opt.enabled ? "Активно" : "Не подключено"}</div>
+							</div>
+							<Switch checked={false} disabled />
+						</div>
+					))}
 					<div className="rounded-2xl border p-4 text-center text-sm text-muted-foreground">
 						Привязка виртуальной карты к Apple Pay, Google Pay и подключение Bybit Wallet будут доступны после активации виртуальной карты.
 					</div>
