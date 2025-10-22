@@ -1006,7 +1006,7 @@ function CardsScreen({ state }: { state: AppState }) {
 					</div>
 				</CardContent>
 			</Card>
-			<Card className="rounded-3xl">
+			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
 					<CardTitle>Интеграции</CardTitle>
 					<CardDescription>Оплата в одно касание</CardDescription>
@@ -1021,19 +1021,19 @@ function CardsScreen({ state }: { state: AppState }) {
 							<Switch checked={false} disabled />
 						</div>
 					))}
-					<div className="rounded-2xl border p-4 text-center text-sm text-muted-foreground">
+					<div className="rounded-2xl border border-[#2f3847] bg-[#1c2330] p-4 text-center text-sm text-neutral-300">
 						Привязка виртуальной карты к Apple Pay, Google Pay и подключение Bybit Wallet будут доступны после активации виртуальной карты.
 					</div>
 				</CardContent>
 			</Card>
 
-			<Card className="rounded-3xl">
+			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
 					<CardTitle>Безопасность</CardTitle>
 					<CardDescription>Для онлайн и офлайн покупок</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
-					<div className="rounded-2xl border p-4 text-center text-sm text-muted-foreground">
+					<div className="rounded-2xl border border-[#2f3847] bg-[#1c2330] p-4 text-center text-sm text-neutral-300">
 						Настройки безопасности (включая 3D-Secure и подтверждения) будут доступны после активации виртуальной карты.
 					</div>
 				</CardContent>
