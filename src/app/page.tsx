@@ -22,11 +22,13 @@ import {
 	Settings,
 	ShieldCheck,
 	Sparkles,
+	Sun,
+	Moon,
 	User,
 	Wallet,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+// badge removed (Prototype label) — not needed
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -44,7 +46,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -56,9 +57,11 @@ import {
 
 type ThemeVariant = "light" | "bybit";
 type TabKey = "home" | "bonuses" | "cards" | "profile";
+type ScreenState = "intro" | "onboarding" | "loading" | "app";
 
 type UserProfile = {
-	name: string;
+	firstName: string;
+	lastName: string;
 	phone: string;
 	email: string;
 	country: string;
@@ -127,42 +130,49 @@ type AppState = {
 	setApay: React.Dispatch<React.SetStateAction<boolean>>;
 	bybitLinked: boolean;
 	setBybitLinked: React.Dispatch<React.SetStateAction<boolean>>;
-	topUpOpen: boolean;
-	setTopUpOpen: React.Dispatch<React.SetStateAction<boolean>>;
-	wdOpen: boolean;
-	setWdOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	refStats: ReferralStats;
-	setScreen: React.Dispatch<React.SetStateAction<"intro" | "app">>;
-	network: string;
-	setNetwork: React.Dispatch<React.SetStateAction<string>>;
-	amount: number;
-	setAmount: React.Dispatch<React.SetStateAction<number>>;
-	destination: string;
-	setDestination: React.Dispatch<React.SetStateAction<string>>;
 	cardData: CardData;
 	cardActive: boolean;
 	setCardActive: React.Dispatch<React.SetStateAction<boolean>>;
 	txs: Transaction[];
 	setTxs: React.Dispatch<React.SetStateAction<Transaction[]>>;
-	pendingWithdrawals: PendingWithdrawal[];
-	setPendingWithdrawals: React.Dispatch<React.SetStateAction<PendingWithdrawal[]>>;
 };
 
 const STORAGE_KEY = "byvc.db";
 const USERNAME_KEY = "byvc.dev.username";
 
-const emptyProfile: UserProfile = { name: "", phone: "", email: "", country: "" };
+const emptyProfile: UserProfile = { firstName: "", lastName: "", phone: "", email: "", country: "" };
 
-const networks = [
-	{ code: "TRC20", fee: 1, eta: "~3-5 мин" },
-	{ code: "BEP20", fee: 0.8, eta: "~1-3 мин" },
-	{ code: "ERC20", fee: 5, eta: "~5-10 мин" },
-	{ code: "SOL", fee: 0.2, eta: "< 1 мин" },
-] as const;
+const PAYMENT_URL = "https://app.bybitpay.pro/";
 
 type DBShape = { users: Record<string, UserRecord> };
 
 const emptyDB: DBShape = { users: {} };
+
+function normalizeProfile(
+	profile?: Partial<UserProfile> & { name?: string }
+): UserProfile {
+	if (!profile) return { ...emptyProfile };
+	const fullName = typeof profile.name === "string" ? profile.name : "";
+	const [fromNameFirst, ...fromNameRest] = fullName.trim().split(/\s+/).filter(Boolean);
+	const firstName = (profile.firstName ?? fromNameFirst ?? "").trim();
+	const lastName = (profile.lastName ?? (fromNameRest.length ? fromNameRest.join(" ") : "")).trim();
+	const phone = (profile.phone ?? "").trim();
+	const email = (profile.email ?? "").trim();
+	const country = (profile.country ?? "").trim();
+	return { firstName, lastName, phone, email, country };
+}
+
+function normalizeRecord(username: string, record: UserRecord | undefined): UserRecord {
+	if (!record) return defaultRecord(username);
+	const base = defaultRecord(username);
+	const normalized: UserRecord = {
+		...base,
+		...record,
+		profile: normalizeProfile(record.profile),
+	};
+	return normalized;
+}
 
 function safeParseDB(value: string | null): DBShape {
 	if (!value) return emptyDB;
@@ -225,7 +235,12 @@ function makeCard(username: string): CardData {
 
 function defaultRecord(username: string): UserRecord {
 	return {
-		profile: { ...emptyProfile, name: "BYBIT VC User" },
+		profile: {
+			...emptyProfile,
+			firstName: "BYBIT",
+			lastName: "VC User",
+			email: "",
+		},
 		balance: 0,
 		cardActive: false,
 		card: makeCard(username),
@@ -253,13 +268,17 @@ function loadUser(username: string): UserRecord {
 		db.users[username] = defaultRecord(username);
 		writeDB(db);
 	}
-	return db.users[username];
+	const normalized = normalizeRecord(username, db.users[username]);
+	db.users[username] = normalized;
+	writeDB(db);
+	return normalized;
 }
 
 function saveUser(username: string, updater: (current: UserRecord) => UserRecord) {
 	const db = readDB();
-	const current = db.users[username] || defaultRecord(username);
-	db.users[username] = updater(current);
+	const current = normalizeRecord(username, db.users[username]);
+	const updated = normalizeRecord(username, updater(current));
+	db.users[username] = updated;
 	writeDB(db);
 }
 
@@ -382,11 +401,9 @@ function Stat({ label, value, sub, highlight, theme }: StatProps) {
 }
 
 export default function HomePage() {
-	const [screen, setScreen] = useState<"intro" | "app">("intro");
+	const [screen, setScreen] = useState<ScreenState>("intro");
 	const [tab, setTab] = useState<TabKey>("home");
 	const [theme, setTheme] = useState<ThemeVariant>("bybit");
-	const [topUpOpen, setTopUpOpen] = useState(false);
-	const [wdOpen, setWdOpen] = useState(false);
 
 	const username = useMemo(() => getUsername(), []);
 	const [profile, setProfile] = useState<UserProfile>(emptyProfile);
@@ -394,19 +411,17 @@ export default function HomePage() {
 	const [gpay, setGpay] = useState(false);
 	const [apay, setApay] = useState(false);
 	const [bybitLinked, setBybitLinked] = useState(false);
-	const [network, setNetwork] = useState<string>(networks[0].code);
-	const [amount, setAmount] = useState(100);
-	const [destination, setDestination] = useState("");
 	const [cardActive, setCardActive] = useState(false);
 	const [txs, setTxs] = useState<Transaction[]>([]);
 	const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>([]);
 
 	const card = useMemo(() => makeCard(username), [username]);
 	const maskedCard = `**** **** **** ${card.last4}`;
-	const cardHolder = profile.name ? profile.name.toUpperCase() : "BYBIT VC USER";
+	const cardHolderParts = [profile.firstName.trim(), profile.lastName.trim()].filter((part) => part.length > 0);
+	const cardHolder = cardHolderParts.length ? cardHolderParts.join(" ").toUpperCase() : "BYBIT VC USER";
 	const [refStats] = useState<ReferralStats>({
 		code: "BYVC-9K3L",
-		link: "https://bybit-vc.app/r/BYVC-9K3L",
+		link: "https://t.me/Card_ByBit_bot?start=_tgr_3WjXo_dkNmIy",
 		earned: 540,
 		referrals: 12,
 		rate: 50,
@@ -456,7 +471,32 @@ export default function HomePage() {
 							className="space-y-4"
 						>
 							<HeaderCompact />
-							<Intro onStart={() => setScreen("app")} />
+							<Intro onStart={() => setScreen("onboarding")} />
+						</motion.div>
+					) : screen === "onboarding" ? (
+						<motion.div
+							key="onboarding"
+							initial={{ opacity: 0, y: 24 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -24 }}
+							className="space-y-4"
+						>
+							<HeaderCompact />
+							<OnboardingScreen onComplete={() => setScreen("loading")} state={{
+								profile,
+								setProfile,
+							}} />
+						</motion.div>
+					) : screen === "loading" ? (
+						<motion.div
+							key="loading"
+							initial={{ opacity: 0, y: 24 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -24 }}
+							className="space-y-4"
+						>
+							<HeaderCompact />
+							<LoadingScreen onDone={() => setScreen("app")} />
 						</motion.div>
 					) : (
 						<motion.div
@@ -485,25 +525,12 @@ export default function HomePage() {
 									setApay,
 									bybitLinked,
 									setBybitLinked,
-									topUpOpen,
-									setTopUpOpen,
-									wdOpen,
-									setWdOpen,
 									refStats,
-									setScreen,
-									network,
-									setNetwork,
-									amount,
-									setAmount,
-									destination,
-									setDestination,
 									cardData: card,
 									cardActive,
 									setCardActive,
 									txs,
 									setTxs,
-									pendingWithdrawals,
-									setPendingWithdrawals,
 								}}
 							/>
 						</motion.div>
@@ -526,9 +553,7 @@ function HeaderCompact() {
 					<div className="font-semibold">BYBIT VC</div>
 				</div>
 			</div>
-			<Badge variant="outline" className="rounded-full">
-				Prototype
-			</Badge>
+			{/* prototype badge removed */}
 		</div>
 	);
 }
@@ -602,26 +627,17 @@ function TopNav({ theme, setTheme }: { theme: ThemeVariant; setTheme: (next: The
 				</div>
 			</div>
 			<div className="flex items-center gap-2">
-				<div className="flex rounded-full bg-secondary p-1">
-					<Button
-						size="sm"
-						className={`rounded-full px-3 ${theme === "light" ? "" : "opacity-70"}`}
-						variant={theme === "light" ? "default" : "ghost"}
-						onClick={() => setTheme("light")}
-					>
-						День
-					</Button>
-					<Button
-						size="sm"
-						className={`rounded-full px-3 ${
-							theme === "bybit" ? "bg-[#F5A623] text-black hover:bg-[#ffb739]" : "opacity-70"
-						}`}
-						variant={theme === "bybit" ? "default" : "ghost"}
-						onClick={() => setTheme("bybit")}
-					>
-						Ночь
-					</Button>
-				</div>
+							<div>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="rounded-full"
+									onClick={() => setTheme(theme === "bybit" ? "light" : "bybit")}
+									title={theme === "bybit" ? "Переключить на дневную тему" : "Переключить на тёмную тему"}
+								>
+									{theme === "bybit" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+								</Button>
+							</div>
 				<Sheet>
 					<SheetTrigger asChild>
 						<Button variant="ghost" size="icon" className="rounded-xl">
@@ -633,11 +649,7 @@ function TopNav({ theme, setTheme }: { theme: ThemeVariant; setTheme: (next: The
 							<div className="text-lg font-semibold">Настройки</div>
 							<Row label="Валюта" value="USDT" />
 							<Row label="Уведомления" value="Включены" />
-							<Row label="Безопасность" value="2FA активна" />
-							<Separator />
-							<div className="text-xs text-muted-foreground">
-								Прототип. Реальные настройки появятся после подключения бэкенда.
-							</div>
+							<Row label="Безопасность" value="2FA отключена" />
 						</div>
 					</SheetContent>
 				</Sheet>
@@ -683,7 +695,7 @@ function MainApp({
 						value="home"
 						className={`rounded-xl ${
 							theme === "bybit"
-								? "data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
+								? "text-neutral-200 dark:text-neutral-200 data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
 								: ""
 						}`}
 					>
@@ -694,7 +706,7 @@ function MainApp({
 						value="bonuses"
 						className={`rounded-xl ${
 							theme === "bybit"
-								? "data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
+								? "text-neutral-200 dark:text-neutral-200 data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
 								: ""
 						}`}
 					>
@@ -704,7 +716,7 @@ function MainApp({
 						value="cards"
 						className={`rounded-xl ${
 							theme === "bybit"
-								? "data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
+								? "text-neutral-200 dark:text-neutral-200 data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
 								: ""
 						}`}
 					>
@@ -714,7 +726,7 @@ function MainApp({
 						value="profile"
 						className={`rounded-xl ${
 							theme === "bybit"
-								? "data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
+								? "text-neutral-200 dark:text-neutral-200 data-[state=active]:border data-[state=active]:border-[#2a2f3a] data-[state=active]:bg-[#1b2029] data-[state=active]:text-[#F5A623] data-[state=active]:ring-1 data-[state=active]:ring-[#F5A623]/40"
 								: ""
 						}`}
 					>
@@ -724,28 +736,25 @@ function MainApp({
 			</Tabs>
 
 			<div className="mt-4 grid grid-cols-2 gap-3">
-				<Button
-					className="h-12 rounded-2xl bg-[#0f1115] text-white hover:bg-[#111827]"
-					onClick={() => state.setTopUpOpen(true)}
-				>
-					<ArrowDownToDot className="mr-2 h-4 w-4" />Пополнить
-				</Button>
-				<Button
-					className="h-12 rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]"
-					onClick={() => state.setWdOpen(true)}
-				>
-					<ArrowUpFromDot className="mr-2 h-4 w-4" />Вывести
-				</Button>
+				<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+					<Button className="h-12 rounded-2xl bg-[#0f1115] text-white hover:bg-[#111827]">
+						<ArrowDownToDot className="mr-2 h-4 w-4" />Пополнить
+					</Button>
+				</a>
+				<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+					<Button className="h-12 rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">
+						<ArrowUpFromDot className="mr-2 h-4 w-4" />Вывести
+					</Button>
+				</a>
 			</div>
 
-			<TopUpDialog state={state} />
-			<WithdrawDialog state={state} />
+			{/* External payment link used instead of internal modals */}
 		</div>
 	);
 }
 
 function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) {
-	const { balance, maskedCard, cardHolder, cardData, cardActive, setTopUpOpen, txs } = state;
+	const { balance, maskedCard, cardHolder, cardData, cardActive, txs } = state;
 	const [activateOpen, setActivateOpen] = useState(false);
 	const [showSensitive, setShowSensitive] = useState(false);
 
@@ -814,9 +823,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 						<div className="font-medium">{showSensitive ? cardData.cvv : "***"}</div>
 					</div>
 				</div>
-				<div className="mt-4 rounded-2xl bg-white/10 p-3 text-xs text-white/80">
-					<span className="font-mono text-base tracking-wide">{showSensitive ? cardData.pan : maskedCard}</span>
-				</div>
+				{/* lower masked PAN removed to avoid duplicate display */}
 			</motion.div>
 
 			<Dialog open={activateOpen} onOpenChange={setActivateOpen}>
@@ -837,7 +844,9 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 								className="rounded-xl bg-[#0f1115] text-white hover:bg-[#111827]"
 								onClick={() => {
 									setActivateOpen(false);
-									setTopUpOpen(true);
+									if (typeof window !== "undefined") {
+										window.open(PAYMENT_URL, "_blank", "noopener");
+									}
 								}}
 							>
 								Пополнить
@@ -862,13 +871,17 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 				</CardHeader>
 				<CardContent className="grid grid-cols-2 gap-2">
 					<Button
-						onClick={() => setTopUpOpen(true)}
 						className={theme === "bybit" ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
+						asChild
 					>
-						Пополнить
+						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+							Пополнить
+						</a>
 					</Button>
-					<Button variant="secondary" onClick={() => state.setWdOpen(true)} className="rounded-2xl">
-						Вывести
+					<Button variant="secondary" className="rounded-2xl" asChild>
+						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+							Вывести
+						</a>
 					</Button>
 				</CardContent>
 			</Card>
@@ -1017,175 +1030,156 @@ function CardsScreen({ state }: { state: AppState }) {
 	);
 }
 
-function ProfileScreen({ state }: { state: AppState }) {
-	const [localProfile, setLocalProfile] = useState(state.profile);
+// TopUpDialog removed — external payment flow used
 
-	useEffect(() => {
-		setLocalProfile(state.profile);
-	}, [state.profile]);
+function OnboardingScreen({ onComplete, state }: { onComplete: () => void; state: { profile: UserProfile; setProfile: AppState["setProfile"] } }) {
+	const [firstName, setFirstName] = useState(state.profile.firstName || "");
+	const [lastName, setLastName] = useState(state.profile.lastName || "");
+	const [country, setCountry] = useState(state.profile.country || "");
+	const [phone, setPhone] = useState(state.profile.phone || "");
 
-	const updateField = (key: keyof UserProfile) =>
-		(event: ChangeEvent<HTMLInputElement>) =>
-			setLocalProfile((prev) => ({ ...prev, [key]: event.target.value }));
+	const countries = [
+		{ name: "Россия", code: "RU" },
+		{ name: "Казахстан", code: "KZ" },
+		{ name: "Беларусь", code: "BY" },
+		{ name: "Украина", code: "UA" },
+		{ name: "США", code: "US" },
+		{ name: "Китай", code: "CN" },
+		{ name: "Индия", code: "IN" },
+		{ name: "Египет", code: "EG" },
+		{ name: "Южная Африка", code: "ZA" },
+		{ name: "Нигерия", code: "NG" },
+		{ name: "Кения", code: "KE" },
+		{ name: "Марокко", code: "MA" },
+		{ name: "Тунис", code: "TN" },
+		{ name: "Эфиопия", code: "ET" },
+		{ name: "Гана", code: "GH" },
+		{ name: "Алжир", code: "DZ" },
+		{ name: "Сенегал", code: "SN" },
+		{ name: "Танзания", code: "TZ" },
+		{ name: "Уганда", code: "UG" },
+		{ name: "Италия", code: "IT" },
+		{ name: "Испания", code: "ES" },
+		{ name: "Германия", code: "DE" },
+		{ name: "Франция", code: "FR" },
+		{ name: "Польша", code: "PL" },
+		{ name: "Нидерланды", code: "NL" },
+	];
 
-	const handleSave = () => {
-		state.setProfile(localProfile);
+	const submit = () => {
+		const next = normalizeProfile({ firstName, lastName, country, phone });
+		state.setProfile(next);
+		onComplete();
 	};
 
 	return (
 		<div className="space-y-4">
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Профиль</CardTitle>
-					<CardDescription>Заполни данные, чтобы быстрее пройти KYC</CardDescription>
+					<CardTitle>Быстрая регистрация</CardTitle>
+					<CardDescription>Заполните несколько полей, чтобы выпустить карту</CardDescription>
 				</CardHeader>
 				<CardContent className="grid gap-3">
 					<div>
-						<Label htmlFor="name">Имя</Label>
-						<Input id="name" value={localProfile.name} onChange={updateField("name")} placeholder="Иван Иванов" />
+						<Label htmlFor="firstName">Имя</Label>
+						<Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Иван" />
 					</div>
 					<div>
-						<Label htmlFor="phone">Телефон</Label>
-						<Input id="phone" value={localProfile.phone} onChange={updateField("phone")} placeholder="+7" />
-					</div>
-					<div>
-						<Label htmlFor="email">Email</Label>
-						<Input id="email" value={localProfile.email} onChange={updateField("email")} placeholder="you@example.com" />
+						<Label htmlFor="lastName">Фамилия</Label>
+						<Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Иванов" />
 					</div>
 					<div>
 						<Label htmlFor="country">Страна</Label>
-						<Input id="country" value={localProfile.country} onChange={updateField("country")} placeholder="Россия" />
+						<TypeaheadCountry
+							id="country"
+							countries={countries}
+							value={country}
+							onChange={(v) => setCountry(v)}
+						/>
+					</div>
+					<div>
+						<Label htmlFor="phone">Телефон</Label>
+						<Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7" />
 					</div>
 				</CardContent>
 				<CardFooter>
-					<Button className="w-full rounded-2xl" onClick={handleSave}>
-						Сохранить профиль
-					</Button>
+					<Button className="w-full rounded-2xl" onClick={submit}>Далее</Button>
 				</CardFooter>
-			</Card>
-
-			<Card className="rounded-3xl">
-				<CardHeader>
-					<CardTitle>Поддержка</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-2 text-sm">
-					<Row label="Телеграм" value="@bybit_support" />
-					<Row label="Email" value="support@bybit.com" />
-					<Row label="Документация" value={<span className="flex items-center gap-1">docs.bybit.com<LinkIcon className="h-4 w-4" /></span>} />
-				</CardContent>
 			</Card>
 		</div>
 	);
 }
 
-function TopUpDialog({ state }: { state: AppState }) {
-	const { topUpOpen, setTopUpOpen, amount, setAmount, network, setNetwork, setBalance, setTxs } = state;
-
-	const handleAmountChange = (event: ChangeEvent<HTMLInputElement>) => {
-		setAmount(Number(event.target.value || 0));
-	};
-
-	const submitTopUp = () => {
-		if (amount <= 0) return;
-		const net = networks.find((n) => n.code === network) ?? networks[0];
-		const fee = net.fee;
-		const credited = Math.max(0, amount - fee);
-		setBalance((prev) => prev + credited);
-		setTxs((prev) => [
-			{
-				id: `topup-${Date.now()}`,
-				type: "topup",
-				amount: credited,
-				ccy: "USDT",
-				ts: new Date().toISOString(),
-				status: `Пополнение через ${net.code}. Комиссия ${fee} USDT`,
-				network: net.code,
-			},
-			...prev,
-		]);
-		setTopUpOpen(false);
-	};
+function LoadingScreen({ onDone }: { onDone: () => void }) {
+	useEffect(() => {
+		const t = setTimeout(() => onDone(), 6000);
+		return () => clearTimeout(t);
+	}, [onDone]);
 
 	return (
-		<Dialog open={topUpOpen} onOpenChange={setTopUpOpen}>
-			<DialogContent className="rounded-2xl">
-				<DialogHeader>
-					<DialogTitle>Пополнить карту</DialogTitle>
-				</DialogHeader>
-				<div className="space-y-4 text-sm">
-					<div>
-						<Label htmlFor="amount">Сумма (USDT)</Label>
-						<Input id="amount" type="number" min={0} value={amount} onChange={handleAmountChange} />
-					</div>
-					<div>
-						<Label>Сеть перевода</Label>
-						<div className="mt-2 grid grid-cols-2 gap-2">
-							{networks.map((net) => (
-								<Button
-									key={net.code}
-									variant={net.code === network ? "default" : "outline"}
-									className="rounded-xl"
-									onClick={() => setNetwork(net.code)}
-								>
-									<div className="flex flex-col text-left">
-										<span className="font-semibold">{net.code}</span>
-										<span className="text-xs text-muted-foreground">Комиссия {net.fee} • {net.eta}</span>
-									</div>
-								</Button>
-							))}
+		<div className="space-y-4">
+			<Card className="rounded-3xl">
+				<CardHeader>
+					<CardTitle>Выпуск карты</CardTitle>
+					<CardDescription>Идёт выпуск вашей виртуальной карты</CardDescription>
+				</CardHeader>
+				<CardContent className="flex items-center justify-center py-12">
+					<motion.div
+						animate={{ rotate: 360 }}
+						transition={{ repeat: Infinity, duration: 1 }}
+						className="h-16 w-16 rounded-full bg-gradient-to-br from-[#FFD166] to-[#F5A623] flex items-center justify-center"
+					>
+						<CreditCard className="h-8 w-8 text-black" />
+					</motion.div>
+				</CardContent>
+				<CardFooter>
+					<div className="w-full text-center text-sm text-muted-foreground">Это займет ~6 секунд...</div>
+				</CardFooter>
+			</Card>
+		</div>
+	);
+}
+
+function TypeaheadCountry({ id, countries, value, onChange }: { id: string; countries: { name: string; code: string }[]; value: string; onChange: (v: string) => void }) {
+	const [query, setQuery] = useState(value || "");
+	const [open, setOpen] = useState(false);
+
+	const filtered = countries.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()) || c.code.toLowerCase().includes(query.toLowerCase()));
+
+	useEffect(() => {
+		setQuery(value || "");
+	}, [value]);
+
+	return (
+		<div className="relative">
+			<input
+				id={id}
+				className="w-full rounded-md border p-2"
+				value={query}
+				onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+				onFocus={() => setOpen(true)}
+				onBlur={() => setTimeout(() => setOpen(false), 150)}
+				placeholder="Начните вводить страну"
+			/>
+			{open && (
+				<div className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white text-black">
+					{filtered.length ? filtered.map((c) => (
+						<div key={c.code} className="px-3 py-2 hover:bg-gray-100 cursor-pointer" onMouseDown={() => { onChange(c.name); setQuery(c.name); setOpen(false); }}>
+							<div className="flex items-center justify-between">
+								<div>{c.name}</div>
+								<div className="text-xs text-muted-foreground">{c.code}</div>
+							</div>
 						</div>
-					</div>
-					<Button className="w-full rounded-xl" onClick={submitTopUp}>
-						Перейти к пополнению
-					</Button>
+					)) : (
+						<div className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</div>
+					)}
 				</div>
-			</DialogContent>
-		</Dialog>
+			)}
+		</div>
 	);
 }
 
-function WithdrawDialog({ state }: { state: AppState }) {
-	const { wdOpen, setWdOpen, setPendingWithdrawals, setBalance, amount, setAmount } = state;
-
-	const handleSubmit = () => {
-		if (amount <= 0) return;
-		setBalance((prev) => Math.max(0, prev - amount));
-		setPendingWithdrawals((prev) => [
-			{
-				id: `wd-${Date.now()}`,
-				amount,
-				ccy: "USDT",
-				ts: new Date().toISOString(),
-				status: "В обработке",
-			},
-			...prev,
-		]);
-		setWdOpen(false);
-	};
-
-	return (
-		<Dialog open={wdOpen} onOpenChange={setWdOpen}>
-			<DialogContent className="rounded-2xl">
-				<DialogHeader>
-					<DialogTitle>Вывести средства</DialogTitle>
-				</DialogHeader>
-				<div className="space-y-4 text-sm">
-					<div>
-						<Label htmlFor="wd-amount">Сумма (USDT)</Label>
-						<Input id="wd-amount" type="number" min={0} value={amount} onChange={(event) => setAmount(Number(event.target.value || 0))} />
-					</div>
-					<div>
-						<Label htmlFor="wd-dest">Кошелек для вывода</Label>
-						<Input id="wd-dest" placeholder="TRC20 адрес" onChange={(event) => state.setDestination(event.target.value)} />
-					</div>
-					<Button className="w-full rounded-xl" onClick={handleSubmit}>
-						Отправить заявку
-					</Button>
-				</div>
-			</DialogContent>
-		</Dialog>
-	);
-}
+// WithdrawDialog removed — external payment flow used
 
 function FeesIntroCard() {
 	return (
