@@ -414,7 +414,7 @@ export default function HomePage() {
 	const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>([]);
 
 	const card = useMemo(() => makeCard(username), [username]);
-	const maskedCard = `**** **** **** ${card.last4}`;
+	const maskedCard = card.pan;
 	const cardHolderParts = [profile.firstName.trim(), profile.lastName.trim()].filter((part) => part.length > 0);
 	const cardHolder = cardHolderParts.length ? cardHolderParts.join(" ").toUpperCase() : "BYBIT VC USER";
 	const [refStats] = useState<ReferralStats>({
@@ -732,19 +732,6 @@ function MainApp({
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>
-
-			<div className="mt-4 grid grid-cols-2 gap-3">
-				<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-					<Button className="h-12 rounded-2xl bg-[#0f1115] text-white hover:bg-[#111827]">
-						<ArrowDownToDot className="mr-2 h-4 w-4" />Пополнить
-					</Button>
-				</a>
-				<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-					<Button className="h-12 rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">
-						<ArrowUpFromDot className="mr-2 h-4 w-4" />Вывести
-					</Button>
-				</a>
-			</div>
 
 			{/* External payment link used instead of internal modals */}
 		</div>
@@ -1327,7 +1314,7 @@ function BonusIntroCard() {
 							<span className="font-semibold text-[#7ef29d]">+200%</span> при пополнении от $500
 						</div>
 					</div>
-					<p>Бонусы начисляются мгновенно и доступны для оплаты любых покупок.</p>
+					<p>Бонусы начисляются мгновенно реальными деньгами и доступны для оплаты покупок и вывода.</p>
 				</CardContent>
 			</Card>
 		</motion.div>
