@@ -937,7 +937,7 @@ function BonusesScreen({ state, theme }: { state: AppState; theme: ThemeVariant 
 					</div>
 					<div className="rounded-2xl bg-[#F5A623]/10 p-3">
 						<div className="font-semibold">+200% к пополнению от $500</div>
-						<div className="text-muted-foreground">Максимум $1000 бонусных USDT</div>
+						{/* removed maximum bonus text per design request */}
 					</div>
 				</CardContent>
 			</Card>
@@ -980,16 +980,10 @@ function CardsScreen({ state }: { state: AppState }) {
 					<CardTitle>Интеграции</CardTitle>
 					<CardDescription>Оплата в одно касание</CardDescription>
 				</CardHeader>
-				<CardContent className="space-y-3">
-					{options.map((opt) => (
-						<div key={opt.label} className="flex items-center justify-between rounded-2xl border p-3">
-							<div>
-								<div className="font-medium">{opt.label}</div>
-								<div className="text-xs text-muted-foreground">{opt.enabled ? "Активно" : "Не подключено"}</div>
-							</div>
-							<Switch checked={opt.enabled} onCheckedChange={opt.toggle} />
-						</div>
-					))}
+				<CardContent className="space-y-3 text-sm">
+					<div className="rounded-2xl border p-4 text-center text-sm text-muted-foreground">
+						Привязка виртуальной карты к Apple Pay, Google Pay и подключение Bybit Wallet будут доступны после активации виртуальной карты.
+					</div>
 				</CardContent>
 			</Card>
 
@@ -999,16 +993,9 @@ function CardsScreen({ state }: { state: AppState }) {
 					<CardDescription>Для онлайн и офлайн покупок</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
-					<div className="flex items-start gap-3 rounded-2xl bg-secondary/50 p-3">
-						<AlertTriangle className="mt-1 h-5 w-5 text-amber-500" />
-						<div>
-							<div className="font-semibold">Включите 3D-Secure</div>
-							<div className="text-muted-foreground">Добавьте карту в приложение Bybit и активируйте подтверждения по SMS/Email.</div>
-						</div>
+					<div className="rounded-2xl border p-4 text-center text-sm text-muted-foreground">
+						Настройки безопасности (включая 3D-Secure и подтверждения) будут доступны после активации виртуальной карты.
 					</div>
-					<Button variant="secondary" className="w-full rounded-2xl">
-						Настроить безопасность
-					</Button>
 				</CardContent>
 			</Card>
 		</div>
