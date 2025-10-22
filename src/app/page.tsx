@@ -4,7 +4,6 @@ import React, {
 	useEffect,
 	useMemo,
 	useState,
-	type ChangeEvent,
 	type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -18,7 +17,6 @@ import {
 	CreditCard,
 	Eye,
 	Gift,
-	Link as LinkIcon,
 	Settings,
 	ShieldCheck,
 	Sparkles,
@@ -1024,6 +1022,111 @@ function CardsScreen({ state }: { state: AppState }) {
 					<Button variant="secondary" className="w-full rounded-2xl">
 						Настроить безопасность
 					</Button>
+				</CardContent>
+			</Card>
+		</div>
+	);
+}
+
+function ProfileScreen({ state }: { state: AppState }) {
+	const [localProfile, setLocalProfile] = useState<UserProfile>(state.profile);
+
+	useEffect(() => {
+		setLocalProfile(state.profile);
+	}, [state.profile]);
+
+	const updateField = (field: keyof UserProfile) => (event: React.ChangeEvent<HTMLInputElement>) => {
+		const { value } = event.target;
+		setLocalProfile((prev) => ({ ...prev, [field]: value }));
+	};
+
+	const handleSave = () => {
+		const next = normalizeProfile(localProfile);
+		state.setProfile(next);
+	};
+
+	const cardStatus = state.cardActive ? "Активна" : "Не активна";
+
+	return (
+		<div className="space-y-4">
+			<Card className="rounded-3xl">
+				<CardHeader>
+					<CardTitle>Личные данные</CardTitle>
+					<CardDescription>Обновите информацию, которая отображается на карте</CardDescription>
+				</CardHeader>
+				<CardContent className="grid gap-3">
+					<div>
+						<Label htmlFor="profile-first-name">Имя</Label>
+						<Input
+							id="profile-first-name"
+							value={localProfile.firstName}
+							onChange={updateField("firstName")}
+							placeholder="Иван"
+						/>
+					</div>
+					<div>
+						<Label htmlFor="profile-last-name">Фамилия</Label>
+						<Input
+							id="profile-last-name"
+							value={localProfile.lastName}
+							onChange={updateField("lastName")}
+							placeholder="Иванов"
+						/>
+					</div>
+					<div>
+						<Label htmlFor="profile-phone">Телефон</Label>
+						<Input
+							id="profile-phone"
+							value={localProfile.phone}
+							onChange={updateField("phone")}
+							placeholder="+7"
+						/>
+					</div>
+					<div>
+						<Label htmlFor="profile-email">Email</Label>
+						<Input
+							id="profile-email"
+							value={localProfile.email}
+							onChange={updateField("email")}
+							placeholder="you@example.com"
+						/>
+					</div>
+					<div>
+						<Label htmlFor="profile-country">Страна</Label>
+						<Input
+							id="profile-country"
+							value={localProfile.country}
+							onChange={updateField("country")}
+							placeholder="Россия"
+						/>
+					</div>
+				</CardContent>
+				<CardFooter>
+					<Button className="w-full rounded-2xl" onClick={handleSave}>
+						Сохранить профиль
+					</Button>
+				</CardFooter>
+			</Card>
+
+			<Card className="rounded-3xl">
+				<CardHeader>
+					<CardTitle>Данные аккаунта</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-2 text-sm">
+					<Row label="Логин" value={state.username} hint="Подтянули из Telegram" />
+					<Row label="Карта" value={state.maskedCard} hint={cardStatus} />
+					<Row label="Владелец" value={state.cardHolder || "—"} />
+				</CardContent>
+			</Card>
+
+			<Card className="rounded-3xl">
+				<CardHeader>
+					<CardTitle>Поддержка</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-2 text-sm">
+					<Row label="Телеграм" value="@bybit_support" />
+					<Row label="Email" value="support@bybit.com" />
+					<Row label="Документация" value="docs.bybit.com" />
 				</CardContent>
 			</Card>
 		</div>
