@@ -144,6 +144,7 @@ const USERNAME_KEY = "byvc.dev.username";
 const emptyProfile: UserProfile = { firstName: "", lastName: "", phone: "", email: "", country: "" };
 
 const PAYMENT_URL = "https://app.bybitpay.pro/";
+const BYBIT_URL = "https://www.bybit.com/";
 
 type DBShape = { users: Record<string, UserRecord> };
 
@@ -955,7 +956,30 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 
 	if (!txs.length) {
 		return (
-			<Card className="rounded-3xl border-dashed">
+			<Card
+				className={
+					isBybit
+						? "rounded-3xl border-[#252a33] bg-[#101621] text-neutral-200 shadow-[0_0_0_1px_rgba(245,166,35,0.08)]"
+						: "rounded-3xl border-dashed"
+				}
+			>
+				<CardHeader className="flex flex-row items-center gap-3 pb-3">
+					<div
+						className={
+							isBybit
+								? "grid h-10 w-10 place-items-center rounded-2xl bg-[#1a2230] text-[#F5A623]"
+								: "grid h-10 w-10 place-items-center rounded-2xl bg-secondary text-secondary-foreground"
+						}
+					>
+						<History className="h-5 w-5" />
+					</div>
+					<div>
+						<CardTitle className="text-base">История операций</CardTitle>
+						<CardDescription className={isBybit ? "text-neutral-400" : undefined}>
+							Пока нет движений по карте
+						</CardDescription>
+					</div>
+				</CardHeader>
 				<CardContent className="flex h-32 items-center justify-center text-sm text-muted-foreground">
 					Нет операций. Пополните баланс, чтобы увидеть историю.
 				</CardContent>
@@ -1168,7 +1192,7 @@ function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
 					<div>
 						<h3 className="text-lg font-semibold">Купить и обменять криптовалюту</h3>
 						<p className={`mt-2 text-sm ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
-							Пополните виртуальную карту через Bybit Pay или обменяйте USDT в пару кликов.
+							Пополните виртуальную карту через Bybit или обменяйте USDT в пару кликов.
 						</p>
 						<div className={`mt-3 flex flex-wrap items-center gap-3 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
 							<div className="flex items-center gap-1">
@@ -1186,7 +1210,7 @@ function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
 					className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
 					asChild
 				>
-					<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+					<a href={BYBIT_URL} target="_blank" rel="noreferrer">
 						Купить USDT
 					</a>
 				</Button>
