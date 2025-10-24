@@ -12,10 +12,12 @@ import {
 	ArrowRight,
 	ArrowUpFromDot,
 	ChevronRight,
+	Coins,
 	Copy,
 	CreditCard,
 	Eye,
 	Gift,
+	History,
 	Settings,
 	ShieldCheck,
 	Sparkles,
@@ -23,9 +25,8 @@ import {
 	Moon,
 	User,
 	Wallet,
-} from "lucide-react";
-
-// badge removed (Prototype label) — not needed
+	} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -941,11 +943,16 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 			</Card>
 
 			<TransactionsList txs={txs} theme={theme} />
+			<PromoBanner theme={theme} />
+			<BuyCryptoCTA theme={theme} />
 		</div>
 	);
 }
 
 function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVariant }) {
+	const isBybit = theme === "bybit";
+	const visibleTxs = txs.slice(0, 5);
+
 	if (!txs.length) {
 		return (
 			<Card className="rounded-3xl border-dashed">
@@ -957,35 +964,234 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 	}
 
 	return (
-		<Card className={theme === "bybit" ? "rounded-3xl border-[#252a33] bg-[#141821] text-neutral-200" : "rounded-3xl"}>
-			<CardHeader className="pb-2">
-				<CardTitle className="text-base">Последние операции</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-3">
-				{txs.slice(0, 5).map((tx) => (
-					<div key={tx.id} className="flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							<div className="grid h-10 w-10 place-items-center rounded-xl bg-secondary/40">
-								{transactionIcon(tx.type)}
-							</div>
-							<div>
-								<div className="text-sm font-medium">{typeLabel(tx.type)}</div>
-								<div className="text-xs text-muted-foreground">{new Date(tx.ts).toLocaleString("ru-RU")}</div>
-							</div>
-						</div>
-						<div className="text-right text-sm font-semibold">
-							{tx.type === "withdraw" || tx.type === "pay" ? "-" : "+"}
-							{formatAmount(tx.amount)} {tx.ccy}
-						</div>
+		<Card
+			className={
+				isBybit
+					? "rounded-3xl border-[#252a33] bg-[#101621] text-neutral-200 shadow-[0_0_0_1px_rgba(245,166,35,0.08)]"
+					: "rounded-3xl"
+			}
+		>
+			<CardHeader className="flex flex-row items-start justify-between gap-4 pb-4">
+				<div className="flex items-center gap-3">
+					<div
+						className={
+							isBybit
+								? "grid h-10 w-10 place-items-center rounded-2xl bg-[#1a2230] text-[#F5A623]"
+								: "grid h-10 w-10 place-items-center rounded-2xl bg-secondary text-secondary-foreground"
+							}
+					>
+						<History className="h-5 w-5" />
 					</div>
-				))}
+					<div>
+						<CardTitle className="text-base">История операций</CardTitle>
+						<CardDescription className={isBybit ? "text-neutral-400" : undefined}>
+							Последние {visibleTxs.length} движений по карте
+						</CardDescription>
+					</div>
+				</div>
+				<Badge
+					variant="outline"
+					className={
+						isBybit
+							? "border-[#303a49] bg-[#151c28] text-neutral-300"
+							: "border-border bg-secondary/70 text-xs text-muted-foreground"
+					}
+				>
+					{txs.length} всего
+				</Badge>
+			</CardHeader>
+			<Separator className={isBybit ? "mx-6 h-px bg-[#1a2230]" : "mx-6"} />
+			<CardContent className="space-y-3 pb-2 pt-4">
+				{visibleTxs.map((tx) => {
+					const outgoing = tx.type === "withdraw" || tx.type === "pay";
+					const amountClass = outgoing
+						? isBybit
+							? "text-red-400"
+							: "text-red-500"
+						: isBybit
+							? "text-emerald-400"
+							: "text-emerald-600";
+
+					return (
+						<div
+							key={tx.id}
+							className={
+								isBybit
+									? "rounded-2xl border border-[#1f2734] bg-gradient-to-br from-[#131a24]/90 to-[#161e2a]/90 p-4 transition-colors hover:border-[#2b3443]"
+									: "rounded-2xl border border-border/60 bg-secondary/50 p-4 transition-colors hover:bg-secondary"
+							}
+						>
+							<div className="flex items-start justify-between gap-3">
+								<div className="flex items-start gap-3">
+									<div
+										className={
+											isBybit
+												? "grid h-10 w-10 place-items-center rounded-xl bg-[#1c2431] text-[#F5A623]"
+												: "grid h-10 w-10 place-items-center rounded-xl bg-background text-foreground"
+										}
+									>
+										{transactionIcon(tx.type)}
+									</div>
+									<div>
+										<div className="flex items-center gap-2 text-sm font-semibold">
+											<span>{typeLabel(tx.type)}</span>
+											{tx.network ? (
+												<span className={`text-[10px] uppercase tracking-wide ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
+													{tx.network}
+												</span>
+											) : null}
+										</div>
+										<div className={`mt-1 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
+											{new Date(tx.ts).toLocaleString("ru-RU", { dateStyle: "medium", timeStyle: "short" })}
+										</div>
+										{tx.merchant ? (
+											<div className={`mt-1 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
+												{tx.merchant}
+											</div>
+										) : null}
+									</div>
+								</div>
+								<div className="text-right">
+									<div className={`text-sm font-semibold ${amountClass}`}>
+										{outgoing ? "-" : "+"}
+										{formatAmount(tx.amount)} {tx.ccy}
+									</div>
+									{tx.status?.trim() ? (
+										<Badge
+											variant="outline"
+											className={`mt-1 max-w-[160px] truncate border-transparent text-[11px] ${
+												isBybit ? "bg-[#1a2230] text-neutral-300" : "bg-muted text-muted-foreground"
+											}`}
+											title={tx.status}
+										>
+											{tx.status}
+										</Badge>
+									) : null}
+								</div>
+							</div>
+						</div>
+					);
+				})}
 			</CardContent>
-			<CardFooter>
-				<Button variant="ghost" className="w-full rounded-2xl">
-					Смотреть все операции
+			<CardFooter className="border-t border-border/40 pt-4">
+				<Button variant="ghost" className="w-full justify-between rounded-2xl px-3 text-sm text-muted-foreground hover:text-foreground">
+					<span>Смотреть все операции</span>
+					<ArrowRight className="h-4 w-4" />
 				</Button>
 			</CardFooter>
 		</Card>
+	);
+}
+
+function PromoBanner({ theme }: { theme: ThemeVariant }) {
+	const isBybit = theme === "bybit";
+
+	return (
+		<div
+			className={
+				isBybit
+					? "relative overflow-hidden rounded-3xl border border-[#2f2720] bg-gradient-to-r from-[#111826] via-[#141d2b] to-[#f5a6231a] p-6 text-neutral-100"
+					: "relative overflow-hidden rounded-3xl border bg-primary/10 p-6"
+			}
+		>
+			<div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#f5a623]/20 blur-3xl" />
+			<div className="pointer-events-none absolute bottom-0 left-0 h-20 w-24 rounded-3xl bg-[#f5a623]/10 blur-2xl" />
+			<div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-1 items-start gap-4">
+					<div
+						className={
+							isBybit
+								? "grid h-14 w-14 place-items-center rounded-2xl bg-[#1d2534] text-[#F5A623] shadow-[0_8px_24px_rgba(13,18,26,0.55)]"
+								: "grid h-14 w-14 place-items-center rounded-2xl bg-primary/90 text-primary-foreground"
+						}
+					>
+						<Gift className="h-6 w-6" />
+					</div>
+					<div className="space-y-2">
+						<Badge
+							variant="outline"
+							className={
+								isBybit
+									? "border-transparent bg-[#1a2230] text-xs uppercase tracking-[0.35em] text-[#F5A623]"
+									: "border-transparent bg-primary/90 text-primary-foreground/80 text-xs uppercase tracking-[0.35em]"
+							}
+						>
+							Промо
+						</Badge>
+						<h3 className="text-lg font-semibold">+100% к первому пополнению от $100</h3>
+						<p className={`text-sm ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
+							Активируйте карту быстрее — пополните баланс на $100 и получите удвоенный бонус на счет.
+						</p>
+					</div>
+				</div>
+				<div className="flex flex-col gap-3 sm:items-end">
+					<div className={`flex items-center gap-2 text-xs ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
+						<Sparkles className="h-3.5 w-3.5" />
+						<span>Бонус начисляется автоматически</span>
+					</div>
+					<Button
+						className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
+						asChild
+					>
+						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+							Получить бонус
+						</a>
+					</Button>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
+	const isBybit = theme === "bybit";
+
+	return (
+		<div
+			className={
+				isBybit
+					? "rounded-3xl border border-[#252a33] bg-[#0f141d] p-6 text-neutral-100"
+					: "rounded-3xl border bg-secondary/50 p-6"
+			}
+		>
+			<div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-1 items-start gap-4">
+					<div
+						className={
+							isBybit
+								? "grid h-12 w-12 place-items-center rounded-xl bg-[#1a2130] text-[#F5A623]"
+								: "grid h-12 w-12 place-items-center rounded-xl bg-secondary text-secondary-foreground"
+						}
+					>
+						<Coins className="h-6 w-6" />
+					</div>
+					<div>
+						<h3 className="text-lg font-semibold">Купить и обменять криптовалюту</h3>
+						<p className={`mt-2 text-sm ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
+							Пополните виртуальную карту через Bybit Pay или обменяйте USDT в пару кликов.
+						</p>
+						<div className={`mt-3 flex flex-wrap items-center gap-3 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
+							<div className="flex items-center gap-1">
+								<ShieldCheck className="h-3.5 w-3.5" />
+								<span>Защищенные платежи</span>
+							</div>
+							<div className="flex items-center gap-1">
+								<Sparkles className="h-3.5 w-3.5" />
+								<span>0% комиссия на первый перевод</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<Button
+					className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
+					asChild
+				>
+					<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+						Купить USDT
+					</a>
+				</Button>
+			</div>
+		</div>
 	);
 }
 
