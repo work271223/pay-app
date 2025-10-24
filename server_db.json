@@ -1,0 +1,36 @@
+{
+  "users": {
+    "guest-nbr486": {
+      "profile": {
+        "firstName": "BYBIT",
+        "lastName": "VC User",
+        "phone": "",
+        "email": "",
+        "country": ""
+      },
+      "balance": 0,
+      "cardActive": false,
+      "card": {
+        "pan": "4532 9901 2234 6345",
+        "exp": "07/27",
+        "cvv": "945",
+        "last4": "6345"
+      },
+      "txs": [
+        {
+          "id": "welcome-1761297927459",
+          "type": "reward",
+          "amount": 5,
+          "ccy": "USDT",
+          "ts": "2025-10-24T09:25:27.459Z",
+          "status": "Welcome bonus за регистрацию"
+        }
+      ],
+      "pendingWithdrawals": [],
+      "createdAt": 1761297927459,
+      "gpay": false,
+      "apay": false,
+      "bybitLinked": false
+    }
+  }
+}

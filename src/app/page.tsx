@@ -184,6 +184,7 @@ function safeParseDB(value: string | null): DBShape {
 }
 
 function readDB(): DBShape {
+	// If running on client, prefer server-backed user storage by username
 	if (typeof window === "undefined") return emptyDB;
 	return safeParseDB(window.localStorage.getItem(STORAGE_KEY));
 }
@@ -260,24 +261,74 @@ function defaultRecord(username: string): UserRecord {
 	};
 }
 
-function loadUser(username: string): UserRecord {
-	const db = readDB();
-	if (!db.users[username]) {
-		db.users[username] = defaultRecord(username);
-		writeDB(db);
-	}
-	const normalized = normalizeRecord(username, db.users[username]);
-	db.users[username] = normalized;
-	writeDB(db);
-	return normalized;
+async function loadUser(username: string): Promise<UserRecord> {
+  // Server-first strategy with localStorage fallback.
+  if (typeof window === 'undefined') {
+    const db = readDB();
+    if (!db.users[username]) {
+      db.users[username] = defaultRecord(username);
+      writeDB(db);
+    }
+    const normalized = normalizeRecord(username, db.users[username]);
+    db.users[username] = normalized;
+    writeDB(db);
+    return normalized;
+  }
+
+  // Try server fetch first (await). If it fails, fallback to local cache or default.
+  try {
+    const res = await fetch(`/api/user/${encodeURIComponent(username)}`);
+    if (res.ok) {
+      const json = await res.json();
+      const db = readDB();
+      if (!db.users) db.users = {};
+      db.users[username] = normalizeRecord(username, json || defaultRecord(username));
+      writeDB(db);
+      return db.users[username];
+    }
+  } catch (e) {
+    // network/server error - fall through to local
+  }
+
+  // Local fallback: return cached value if present, otherwise create default and persist locally.
+  const local = safeParseDB(window.localStorage.getItem(STORAGE_KEY));
+  if (local.users && local.users[username]) {
+    const normalized = normalizeRecord(username, local.users[username]);
+    local.users[username] = normalized;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(local));
+    return normalized;
+  }
+
+  const db = readDB();
+  if (!db.users[username]) {
+    db.users[username] = defaultRecord(username);
+    writeDB(db);
+  }
+  const normalized = normalizeRecord(username, db.users[username]);
+  db.users[username] = normalized;
+  writeDB(db);
+  return normalized;
 }
 
-function saveUser(username: string, updater: (current: UserRecord) => UserRecord) {
+async function saveUser(username: string, updater: (current: UserRecord) => UserRecord) {
 	const db = readDB();
 	const current = normalizeRecord(username, db.users[username]);
 	const updated = normalizeRecord(username, updater(current));
 	db.users[username] = updated;
 	writeDB(db);
+
+	if (typeof window === 'undefined') return;
+
+	// Best-effort POST to server (await to reduce races). Fail silently.
+	try {
+		await fetch(`/api/user/${encodeURIComponent(username)}`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(updated),
+		});
+	} catch (e) {
+		// ignore network errors; local cache still preserved
+	}
 }
 
 function formatAmount(amount: number) {
@@ -426,29 +477,38 @@ export default function HomePage() {
 	});
 
 	useEffect(() => {
-		const record = loadUser(username);
-		setProfile(record.profile);
-		setBalance(record.balance);
-		setGpay(record.gpay);
-		setApay(record.apay);
-		setBybitLinked(record.bybitLinked);
-		setCardActive(record.cardActive);
-		setTxs(record.txs);
-		setPendingWithdrawals(record.pendingWithdrawals);
+		let mounted = true;
+		(async () => {
+			const record = await loadUser(username);
+			if (!mounted) return;
+			setProfile(record.profile);
+			setBalance(record.balance);
+			setGpay(record.gpay);
+			setApay(record.apay);
+			setBybitLinked(record.bybitLinked);
+			setCardActive(record.cardActive);
+			setTxs(record.txs);
+			setPendingWithdrawals(record.pendingWithdrawals);
+		})();
+		return () => { mounted = false; };
 	}, [username]);
 
 	useEffect(() => {
-		saveUser(username, (current) => ({
-			...current,
-			profile,
-			balance,
-			gpay,
-			apay,
-			bybitLinked,
-			cardActive,
-			txs,
-			pendingWithdrawals,
-		}));
+		// debounce/serialize saves to avoid spamming server during rapid state changes.
+		const id = setTimeout(() => {
+			saveUser(username, (current) => ({
+				...current,
+				profile,
+				balance,
+				gpay,
+				apay,
+				bybitLinked,
+				cardActive,
+				txs,
+				pendingWithdrawals,
+			}));
+		}, 400);
+		return () => clearTimeout(id);
 	}, [username, profile, balance, gpay, apay, bybitLinked, cardActive, txs, pendingWithdrawals]);
 
 	return (
