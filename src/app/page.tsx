@@ -254,7 +254,7 @@ function defaultRecord(username: string): UserRecord {
 				amount: 5,
 				ccy: "USDT",
 				ts: new Date().toISOString(),
-				status: "Welcome bonus за регистрацию",
+				status: "Welcome bonus for signing up",
 			},
 		],
 		pendingWithdrawals: [],
@@ -337,7 +337,7 @@ async function saveUser(username: string, updater: (current: UserRecord) => User
 }
 
 function formatAmount(amount: number) {
-	return amount.toLocaleString("ru-RU", {
+	return amount.toLocaleString("en-US", {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	});
@@ -360,14 +360,14 @@ function transactionIcon(type: TransactionType) {
 function typeLabel(type: TransactionType) {
 	switch (type) {
 		case "topup":
-			return "Пополнение";
+			return "Top up";
 		case "withdraw":
-			return "Вывод";
+			return "Withdrawal";
 		case "pay":
-			return "Оплата";
+			return "Payment";
 		case "reward":
 		default:
-			return "Бонус";
+			return "Bonus";
 	}
 }
 
@@ -638,11 +638,11 @@ function Intro({ onStart }: { onStart: () => void }) {
 			>
 				<div className="space-y-4">
 					<div className="inline-flex items-center gap-2 rounded-full bg-[#F5A623]/15 px-3 py-1 text-xs font-semibold text-[#F5A623]">
-						<Sparkles className="h-4 w-4" /> Выпуск за 1 минуту
+						<Sparkles className="h-4 w-4" /> Issued in 1 minute
 					</div>
-					<div className="text-2xl font-bold leading-tight">Виртуальная карта BYBIT</div>
+					<div className="text-2xl font-bold leading-tight">BYBIT Virtual Card</div>
 					<div className="max-w-prose text-sm leading-6 text-neutral-300">
-						Пополните баланс в USDT и оплачивайте покупки через Google Pay и Apple Pay. Кэшбэк и бонусы начисляются мгновенно.
+						Top up your USDT balance and pay with Google Pay or Apple Pay. Cashback and bonuses arrive instantly.
 					</div>
 				</div>
 			</motion.div>
@@ -661,10 +661,10 @@ function Intro({ onStart }: { onStart: () => void }) {
 				className="relative overflow-hidden rounded-[28px] border border-[#F5A623]/50 bg-gradient-to-br from-[#FFD166] via-[#F5A623] to-[#f27f19] p-6 text-[#111827] shadow-[0_18px_60px_rgba(245,166,35,0.45)]"
 			>
 				<div className="relative z-10 space-y-4">
-					<div className="text-xs font-semibold uppercase tracking-wide text-black/70">Готовы начать?</div>
-					<div className="text-2xl font-bold leading-tight">Открой виртуальную карту BYBIT</div>
+					<div className="text-xs font-semibold uppercase tracking-wide text-black/70">Ready to start?</div>
+					<div className="text-2xl font-bold leading-tight">Open a BYBIT virtual card</div>
 					<div className="max-w-prose text-sm leading-6 text-black/70">
-						Пополните от 100 USDT и активируйте полный доступ к кэшбэку 20% и повышенным бонусам.
+						Deposit 100 USDT to unlock 20% cashback and boosted bonuses.
 					</div>
 					<Button
 						data-testid="open-account"
@@ -672,7 +672,7 @@ function Intro({ onStart }: { onStart: () => void }) {
 						className="h-12 w-full rounded-2xl bg-[#111827] text-base text-white hover:bg-black"
 					>
 						<span className="flex items-center justify-center gap-2">
-							Открыть карту
+							Open card
 							<ArrowRight className="h-4 w-4" />
 						</span>
 					</Button>
@@ -693,7 +693,7 @@ function TopNav({ theme, setTheme }: { theme: ThemeVariant; setTheme: (next: The
 					<div className={`text-xs ${theme === "bybit" ? "text-neutral-300" : "text-muted-foreground"}`}>
 						BYBIT VC
 					</div>
-					<div className="font-semibold">Виртуальная карта</div>
+					<div className="font-semibold">Virtual card</div>
 				</div>
 			</div>
 			<div className="flex items-center gap-2">
@@ -703,7 +703,7 @@ function TopNav({ theme, setTheme }: { theme: ThemeVariant; setTheme: (next: The
 									size="icon"
 									className="rounded-full"
 									onClick={() => setTheme(theme === "bybit" ? "light" : "bybit")}
-									title={theme === "bybit" ? "Переключить на дневную тему" : "Переключить на тёмную тему"}
+									title={theme === "bybit" ? "Switch to light theme" : "Switch to dark theme"}
 								>
 									{theme === "bybit" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
 								</Button>
@@ -716,10 +716,10 @@ function TopNav({ theme, setTheme }: { theme: ThemeVariant; setTheme: (next: The
 					</SheetTrigger>
 					<SheetContent side="right" className="w-[94vw] p-5 sm:w-[420px]">
 						<div className="space-y-4">
-							<div className="text-lg font-semibold">Настройки</div>
-							<Row label="Валюта" value="USDT" />
-							<Row label="Уведомления" value="Включены" />
-							<Row label="Безопасность" value="2FA отключена" />
+							<div className="text-lg font-semibold">Settings</div>
+							<Row label="Currency" value="USDT" />
+							<Row label="Notifications" value="Enabled" />
+							<Row label="Security" value="2FA disabled" />
 						</div>
 					</SheetContent>
 				</Sheet>
@@ -769,7 +769,7 @@ function MainApp({
 								: ""
 						}`}
 					>
-						<Wallet className="mr-1 h-4 w-4" />Главная
+						<Wallet className="mr-1 h-4 w-4" />Home
 					</TabsTrigger>
 					<TabsTrigger
 						data-testid="tab-bonuses"
@@ -780,7 +780,7 @@ function MainApp({
 								: ""
 						}`}
 					>
-						<Gift className="mr-1 h-4 w-4" />Бонусы
+						<Gift className="mr-1 h-4 w-4" />Bonuses
 					</TabsTrigger>
 					<TabsTrigger
 						value="cards"
@@ -790,7 +790,7 @@ function MainApp({
 								: ""
 						}`}
 					>
-						<CreditCard className="mr-1 h-4 w-4" />Карты
+						<CreditCard className="mr-1 h-4 w-4" />Cards
 					</TabsTrigger>
 					<TabsTrigger
 						value="profile"
@@ -800,7 +800,7 @@ function MainApp({
 								: ""
 						}`}
 					>
-						<User className="mr-1 h-4 w-4" />Профиль
+						<User className="mr-1 h-4 w-4" />Profile
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>
@@ -825,7 +825,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 			>
 				<div className="flex items-center gap-2">
 					<ShieldCheck className="h-4 w-4" />
-					<span className="text-sm font-medium">{cardActive ? "Карта активна" : "Карта не активна"}</span>
+					<span className="text-sm font-medium">{cardActive ? "Card is active" : "Card is not active"}</span>
 				</div>
 				{!cardActive ? (
 					<Button
@@ -833,7 +833,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 						onClick={() => setActivateOpen(true)}
 						data-testid="activate-btn"
 					>
-						Активировать
+						Activate
 					</Button>
 				) : null}
 			</div>
@@ -868,7 +868,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 				</div>
 				<div className="mt-6 grid grid-cols-3 gap-4 text-sm">
 					<div>
-						<div className="text-xs text-neutral-300/70">Владелец</div>
+						<div className="text-xs text-neutral-300/70">Cardholder</div>
 						<div className="font-medium">{cardHolder}</div>
 					</div>
 					<div>
@@ -886,15 +886,15 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 			<Dialog open={activateOpen} onOpenChange={setActivateOpen}>
 				<DialogContent className="rounded-2xl">
 					<DialogHeader>
-						<DialogTitle>Активация карты</DialogTitle>
+						<DialogTitle>Card activation</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-3 text-sm">
 						<p>
-							Для активации карты пополните депозит на <span className="font-semibold">$100</span>. После этого карта станет активной автоматически.
+							Top up <span className="font-semibold">$100</span> to activate the card automatically.
 						</p>
 						<div className="grid grid-cols-2 gap-2">
 							<Button variant="secondary" className="rounded-xl" onClick={() => setActivateOpen(false)}>
-								Позже
+								Later
 							</Button>
 							<Button
 								data-testid="activate-topup"
@@ -906,7 +906,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 									}
 								}}
 							>
-								Пополнить
+								Top up
 							</Button>
 						</div>
 					</div>
@@ -914,16 +914,16 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 			</Dialog>
 
 			<div className="grid grid-cols-3 gap-2">
-				<Stat theme={theme} label="Баланс" value={`${formatAmount(balance)} USDT`} />
-				<Stat theme={theme} label="Эквивалент" value={`$${formatAmount(balance)}`} />
-				<Stat theme={theme} label="Кэшбэк 20%" value={`${formatAmount(Math.max(0, balance * 0.2))} USDT`} highlight />
+				<Stat theme={theme} label="Balance" value={`${formatAmount(balance)} USDT`} />
+				<Stat theme={theme} label="USD equivalent" value={`$${formatAmount(balance)}`} />
+				<Stat theme={theme} label="20% cashback" value={`${formatAmount(Math.max(0, balance * 0.2))} USDT`} highlight />
 			</div>
 
 			<Card className={theme === "bybit" ? "rounded-3xl border-[#252a33] bg-[#141821] text-neutral-200" : "rounded-3xl"}>
 				<CardHeader className="pb-3">
-					<CardTitle className="text-base">Быстрые действия</CardTitle>
+					<CardTitle className="text-base">Quick actions</CardTitle>
 					<CardDescription className={theme === "bybit" ? "text-neutral-400" : ""}>
-						Пополнение и вывод
+						Deposit and withdrawal
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="grid grid-cols-2 gap-2">
@@ -932,12 +932,12 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 						asChild
 					>
 						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-							Пополнить
+							Top up
 						</a>
 					</Button>
 					<Button variant="secondary" className="rounded-2xl" asChild>
 						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-							Вывести
+							Withdraw
 						</a>
 					</Button>
 				</CardContent>
@@ -974,14 +974,14 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 						<History className="h-5 w-5" />
 					</div>
 					<div>
-						<CardTitle className="text-base">История операций</CardTitle>
+						<CardTitle className="text-base">Transaction history</CardTitle>
 						<CardDescription className={isBybit ? "text-neutral-400" : undefined}>
-							Пока нет движений по карте
+							No activity yet
 						</CardDescription>
 					</div>
 				</CardHeader>
 				<CardContent className="flex h-32 items-center justify-center text-sm text-muted-foreground">
-					Нет операций. Пополните баланс, чтобы увидеть историю.
+					No transactions yet. Top up to start moving funds.
 				</CardContent>
 			</Card>
 		);
@@ -1007,9 +1007,9 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 						<History className="h-5 w-5" />
 					</div>
 					<div>
-						<CardTitle className="text-base">История операций</CardTitle>
+						<CardTitle className="text-base">Transaction history</CardTitle>
 						<CardDescription className={isBybit ? "text-neutral-400" : undefined}>
-							Последние {visibleTxs.length} движений по карте
+							Last {visibleTxs.length} card movements
 						</CardDescription>
 					</div>
 				</div>
@@ -1021,7 +1021,7 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 							: "border-border bg-secondary/70 text-xs text-muted-foreground"
 					}
 				>
-					{txs.length} всего
+					{txs.length} total
 				</Badge>
 			</CardHeader>
 			<Separator className={isBybit ? "mx-6 h-px bg-[#1a2230]" : "mx-6"} />
@@ -1066,7 +1066,7 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 											) : null}
 										</div>
 										<div className={`mt-1 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
-											{new Date(tx.ts).toLocaleString("ru-RU", { dateStyle: "medium", timeStyle: "short" })}
+											{new Date(tx.ts).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
 										</div>
 										{tx.merchant ? (
 											<div className={`mt-1 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
@@ -1099,7 +1099,7 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 			</CardContent>
 			<CardFooter className="border-t border-border/40 pt-4">
 				<Button variant="ghost" className="w-full justify-between rounded-2xl px-3 text-sm text-muted-foreground hover:text-foreground">
-					<span>Смотреть все операции</span>
+					<span>View all transactions</span>
 					<ArrowRight className="h-4 w-4" />
 				</Button>
 			</CardFooter>
@@ -1140,25 +1140,25 @@ function PromoBanner({ theme }: { theme: ThemeVariant }) {
 									: "border-transparent bg-primary/90 text-primary-foreground/80 text-xs uppercase tracking-[0.35em]"
 							}
 						>
-							Промо
+							Promo
 						</Badge>
-						<h3 className="text-lg font-semibold">+100% к первому пополнению от $100</h3>
+						<h3 className="text-lg font-semibold">100% match on your first $100 top-up</h3>
 						<p className={`text-sm ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
-							Активируйте карту быстрее — пополните баланс на $100 и получите удвоенный бонус на счет.
+							Activate your card faster—top up $100 and double the bonus balance.
 						</p>
 					</div>
 				</div>
 				<div className="flex flex-col gap-3 sm:items-end">
 					<div className={`flex items-center gap-2 text-xs ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
 						<Sparkles className="h-3.5 w-3.5" />
-						<span>Бонус начисляется автоматически</span>
+						<span>Bonus applies automatically</span>
 					</div>
 					<Button
 						className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
 						asChild
 					>
 						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-							Получить бонус
+							Claim bonus
 						</a>
 					</Button>
 				</div>
@@ -1190,18 +1190,18 @@ function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
 						<Coins className="h-6 w-6" />
 					</div>
 					<div>
-						<h3 className="text-lg font-semibold">Купить и обменять криптовалюту</h3>
+						<h3 className="text-lg font-semibold">Buy and swap crypto</h3>
 						<p className={`mt-2 text-sm ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
-							Пополните виртуальную карту через Bybit или обменяйте USDT в пару кликов.
+							Top up your virtual card through Bybit or swap USDT in a couple of taps.
 						</p>
 						<div className={`mt-3 flex flex-wrap items-center gap-3 text-xs ${isBybit ? "text-neutral-400" : "text-muted-foreground"}`}>
 							<div className="flex items-center gap-1">
 								<ShieldCheck className="h-3.5 w-3.5" />
-								<span>Защищенные платежи</span>
+								<span>Secure payments</span>
 							</div>
 							<div className="flex items-center gap-1">
 								<Sparkles className="h-3.5 w-3.5" />
-								<span>0% комиссия на первый перевод</span>
+								<span>0% fee on the first transfer</span>
 							</div>
 						</div>
 					</div>
@@ -1211,7 +1211,7 @@ function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
 					asChild
 				>
 					<a href={BYBIT_URL} target="_blank" rel="noreferrer">
-						Купить USDT
+						Buy USDT
 					</a>
 				</Button>
 			</div>
@@ -1224,18 +1224,18 @@ function BonusesScreen({ state, theme }: { state: AppState; theme: ThemeVariant 
 		<div className="space-y-4">
 			<Card className={theme === "bybit" ? "rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100" : "rounded-3xl"}>
 				<CardHeader>
-					<CardTitle className="text-lg">Бонусы за пополнение</CardTitle>
+					<CardTitle className="text-lg">Top-up bonuses</CardTitle>
 					<CardDescription className={theme === "bybit" ? "text-neutral-400" : ""}>
-						Активируются автоматически после пополнения от $100
+						Apply automatically after a $100 deposit
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
 					<div className="rounded-2xl bg-primary/10 p-3">
-						<div className="font-semibold">+100% к первому пополнению от $100</div>
-						<div className="text-muted-foreground">Бонус начисляется на баланс и может быть потрачен на покупки</div>
+						<div className="font-semibold">100% match on first $100 top-up</div>
+						<div className="text-muted-foreground">Bonus credits to your balance and can be spent on purchases</div>
 					</div>
 					<div className="rounded-2xl bg-[#F5A623]/10 p-3">
-						<div className="font-semibold">+200% к пополнению от $500</div>
+						<div className="font-semibold">200% match on $500 top-up</div>
 						{/* removed maximum bonus text per design request */}
 					</div>
 				</CardContent>
@@ -1243,22 +1243,22 @@ function BonusesScreen({ state, theme }: { state: AppState; theme: ThemeVariant 
 
 			<Card className={theme === "bybit" ? "rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100" : "rounded-3xl"}>
 				<CardHeader>
-					<CardTitle>Реферальная программа</CardTitle>
+					<CardTitle>Referral program</CardTitle>
 					<CardDescription className={theme === "bybit" ? "text-neutral-400" : ""}>
-						Делись картой и получай кэшбэк
+						Share the card and earn cashback
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
-					<Row label="Твой код" value={state.refStats.code} hint="Скопируй и отправь другу" />
-					<Row label="Ссылка" value={<span className="break-all">{state.refStats.link}</span>} />
+					<Row label="Your code" value={state.refStats.code} hint="Copy and share with a friend" />
+					<Row label="Link" value={<span className="break-all">{state.refStats.link}</span>} />
 					<div className="grid grid-cols-3 gap-2">
-						<Stat theme={theme} label="Приглашено" value={state.refStats.referrals} />
-						<Stat theme={theme} label="Кэшбэк" value={`${state.refStats.rate}%`} />
-						<Stat theme={theme} label="Заработано" value={`${state.refStats.earned} USDT`} />
+						<Stat theme={theme} label="Invited" value={state.refStats.referrals} />
+						<Stat theme={theme} label="Cashback" value={`${state.refStats.rate}%`} />
+						<Stat theme={theme} label="Earned" value={`${state.refStats.earned} USDT`} />
 					</div>
 				</CardContent>
 				<CardFooter>
-					<Button className="w-full rounded-2xl">Поделиться ссылкой</Button>
+					<Button className="w-full rounded-2xl">Share link</Button>
 				</CardFooter>
 			</Card>
 		</div>
@@ -1277,14 +1277,14 @@ function CardsScreen({ state }: { state: AppState }) {
 			{/* Order physical card block */}
 			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
-					<CardTitle>Заказать физическую карту</CardTitle>
-					<CardDescription>Получите реальную карту BYBIT для офлайн-платежей</CardDescription>
+					<CardTitle>Order a physical card</CardTitle>
+					<CardDescription>Get a BYBIT card for offline payments</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-between gap-4">
-						<div className="text-sm text-neutral-300">Закажите физическую карту и получите доставку в вашу страну.</div>
+						<div className="text-sm text-neutral-300">Order a physical card and have it delivered to your country.</div>
 						<a href="https://www.bybit.com/en/cards/" target="_blank" rel="noreferrer">
-							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Заказать</Button>
+							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Order</Button>
 						</a>
 					</div>
 				</CardContent>
@@ -1293,47 +1293,47 @@ function CardsScreen({ state }: { state: AppState }) {
 			{/* Brazil Bybit Pay info block */}
 			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
-					<CardTitle>Bybit Pay — Бразилия</CardTitle>
-					<CardDescription>Доступно для резидентов Бразилии (только с KYC)</CardDescription>
+					<CardTitle>Bybit Pay — Brazil</CardTitle>
+					<CardDescription>Available to Brazil residents (KYC required)</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="flex items-center justify-between gap-4">
-						<div className="text-sm text-neutral-300">Для резидентов Бразилии доступно подключение Bybit Pay (требуется KYC).</div>
+						<div className="text-sm text-neutral-300">Brazil residents can connect Bybit Pay (KYC required).</div>
 						<a href="https://www.bybit.com/en/bybitpay/" target="_blank" rel="noreferrer">
-							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Узнать подробности</Button>
+							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Learn more</Button>
 						</a>
 					</div>
 				</CardContent>
 			</Card>
 			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
-					<CardTitle>Интеграции</CardTitle>
-					<CardDescription>Оплата в одно касание</CardDescription>
+					<CardTitle>Integrations</CardTitle>
+					<CardDescription>One-tap payments</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
 					{options.map((opt) => (
 						<div key={opt.label} className="flex items-center justify-between rounded-2xl border p-3">
 							<div>
 								<div className="font-medium">{opt.label}</div>
-								<div className="text-xs text-muted-foreground">{opt.enabled ? "Активно" : "Не подключено"}</div>
+								<div className="text-xs text-muted-foreground">{opt.enabled ? "Active" : "Not connected"}</div>
 							</div>
 							<Switch checked={false} disabled />
 						</div>
 					))}
 					<div className="rounded-2xl border border-[#2f3847] bg-[#1c2330] p-4 text-center text-sm text-neutral-300">
-						Привязка виртуальной карты к Apple Pay, Google Pay и подключение Bybit Wallet будут доступны после активации виртуальной карты.
+						Linking the virtual card to Apple Pay, Google Pay, and Bybit Wallet becomes available after you activate the virtual card.
 					</div>
 				</CardContent>
 			</Card>
 
 			<Card className="rounded-3xl border-[#252a33] bg-[#141821] text-neutral-100">
 				<CardHeader>
-					<CardTitle>Безопасность</CardTitle>
-					<CardDescription>Для онлайн и офлайн покупок</CardDescription>
+					<CardTitle>Security</CardTitle>
+					<CardDescription>For online and offline purchases</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm">
 					<div className="rounded-2xl border border-[#2f3847] bg-[#1c2330] p-4 text-center text-sm text-neutral-300">
-						Настройки безопасности (включая 3D-Secure и подтверждения) будут доступны после активации виртуальной карты.
+						Security settings (including 3D Secure and approvals) become available after you activate the virtual card.
 					</div>
 				</CardContent>
 			</Card>
@@ -1358,41 +1358,41 @@ function ProfileScreen({ state }: { state: AppState }) {
 		state.setProfile(next);
 	};
 
-	const cardStatus = state.cardActive ? "Активна" : "Не активна";
+	const cardStatus = state.cardActive ? "Active" : "Inactive";
 
 	return (
 		<div className="space-y-4">
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Личные данные</CardTitle>
-					<CardDescription>Обновите информацию, которая отображается на карте</CardDescription>
+					<CardTitle>Personal info</CardTitle>
+					<CardDescription>Update the details shown on your card</CardDescription>
 				</CardHeader>
 				<CardContent className="grid gap-3">
 					<div>
-						<Label htmlFor="profile-first-name">Имя</Label>
+						<Label htmlFor="profile-first-name">First name</Label>
 						<Input
 							id="profile-first-name"
 							value={localProfile.firstName}
 							onChange={updateField("firstName")}
-							placeholder="Иван"
+							placeholder="Alex"
 						/>
 					</div>
 					<div>
-						<Label htmlFor="profile-last-name">Фамилия</Label>
+						<Label htmlFor="profile-last-name">Last name</Label>
 						<Input
 							id="profile-last-name"
 							value={localProfile.lastName}
 							onChange={updateField("lastName")}
-							placeholder="Иванов"
+							placeholder="Smith"
 						/>
 					</div>
 					<div>
-						<Label htmlFor="profile-phone">Телефон</Label>
+						<Label htmlFor="profile-phone">Phone number</Label>
 						<Input
 							id="profile-phone"
 							value={localProfile.phone}
 							onChange={updateField("phone")}
-							placeholder="+7"
+							placeholder="+1 555 123 4567"
 						/>
 					</div>
 					<div>
@@ -1405,41 +1405,41 @@ function ProfileScreen({ state }: { state: AppState }) {
 						/>
 					</div>
 					<div>
-						<Label htmlFor="profile-country">Страна</Label>
+						<Label htmlFor="profile-country">Country</Label>
 						<Input
 							id="profile-country"
 							value={localProfile.country}
 							onChange={updateField("country")}
-							placeholder="Россия"
+							placeholder="United States"
 						/>
 					</div>
 				</CardContent>
 				<CardFooter>
 					<Button className="w-full rounded-2xl" onClick={handleSave}>
-						Сохранить профиль
+						Save profile
 					</Button>
 				</CardFooter>
 			</Card>
 
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Данные аккаунта</CardTitle>
+					<CardTitle>Account details</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-2 text-sm">
-					<Row label="Логин" value={state.username} hint="Подтянули из Telegram" />
-					<Row label="Карта" value={state.maskedCard} hint={cardStatus} />
-					<Row label="Владелец" value={state.cardHolder || "—"} />
+					<Row label="Login" value={state.username} hint="Synced from Telegram" />
+					<Row label="Card" value={state.maskedCard} hint={cardStatus} />
+					<Row label="Cardholder" value={state.cardHolder || "—"} />
 				</CardContent>
 			</Card>
 
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Поддержка</CardTitle>
+					<CardTitle>Support</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-2 text-sm">
-					<Row label="Телеграм" value="@bybit_support" />
+					<Row label="Telegram" value="@bybit_support" />
 					<Row label="Email" value="support@bybit.com" />
-					<Row label="Документация" value="docs.bybit.com" />
+					<Row label="Docs" value="docs.bybit.com" />
 				</CardContent>
 			</Card>
 		</div>
@@ -1455,31 +1455,31 @@ function OnboardingScreen({ onComplete, state }: { onComplete: () => void; state
 	const [phone, setPhone] = useState(state.profile.phone || "");
 
 	const countries = [
-		{ name: "Россия", code: "RU" },
-		{ name: "Казахстан", code: "KZ" },
-		{ name: "Беларусь", code: "BY" },
-		{ name: "Украина", code: "UA" },
-		{ name: "США", code: "US" },
-		{ name: "Китай", code: "CN" },
-		{ name: "Индия", code: "IN" },
-		{ name: "Египет", code: "EG" },
-		{ name: "Южная Африка", code: "ZA" },
-		{ name: "Нигерия", code: "NG" },
-		{ name: "Кения", code: "KE" },
-		{ name: "Марокко", code: "MA" },
-		{ name: "Тунис", code: "TN" },
-		{ name: "Эфиопия", code: "ET" },
-		{ name: "Гана", code: "GH" },
-		{ name: "Алжир", code: "DZ" },
-		{ name: "Сенегал", code: "SN" },
-		{ name: "Танзания", code: "TZ" },
-		{ name: "Уганда", code: "UG" },
-		{ name: "Италия", code: "IT" },
-		{ name: "Испания", code: "ES" },
-		{ name: "Германия", code: "DE" },
-		{ name: "Франция", code: "FR" },
-		{ name: "Польша", code: "PL" },
-		{ name: "Нидерланды", code: "NL" },
+		{ name: "Russia", code: "RU" },
+		{ name: "Kazakhstan", code: "KZ" },
+		{ name: "Belarus", code: "BY" },
+		{ name: "Ukraine", code: "UA" },
+		{ name: "United States", code: "US" },
+		{ name: "China", code: "CN" },
+		{ name: "India", code: "IN" },
+		{ name: "Egypt", code: "EG" },
+		{ name: "South Africa", code: "ZA" },
+		{ name: "Nigeria", code: "NG" },
+		{ name: "Kenya", code: "KE" },
+		{ name: "Morocco", code: "MA" },
+		{ name: "Tunisia", code: "TN" },
+		{ name: "Ethiopia", code: "ET" },
+		{ name: "Ghana", code: "GH" },
+		{ name: "Algeria", code: "DZ" },
+		{ name: "Senegal", code: "SN" },
+		{ name: "Tanzania", code: "TZ" },
+		{ name: "Uganda", code: "UG" },
+		{ name: "Italy", code: "IT" },
+		{ name: "Spain", code: "ES" },
+		{ name: "Germany", code: "DE" },
+		{ name: "France", code: "FR" },
+		{ name: "Poland", code: "PL" },
+		{ name: "Netherlands", code: "NL" },
 	];
 
 	const submit = () => {
@@ -1492,20 +1492,20 @@ function OnboardingScreen({ onComplete, state }: { onComplete: () => void; state
 		<div className="space-y-4">
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Быстрая регистрация</CardTitle>
-					<CardDescription>Заполните несколько полей, чтобы выпустить карту</CardDescription>
+					<CardTitle>Quick registration</CardTitle>
+					<CardDescription>Fill a few fields to issue your card</CardDescription>
 				</CardHeader>
 				<CardContent className="grid gap-3">
 					<div>
-						<Label htmlFor="firstName">Имя</Label>
-						<Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Иван" />
+						<Label htmlFor="firstName">First name</Label>
+						<Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Alex" />
 					</div>
 					<div>
-						<Label htmlFor="lastName">Фамилия</Label>
-						<Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Иванов" />
+						<Label htmlFor="lastName">Last name</Label>
+						<Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Smith" />
 					</div>
 					<div>
-						<Label htmlFor="country">Страна</Label>
+						<Label htmlFor="country">Country</Label>
 						<TypeaheadCountry
 							id="country"
 							countries={countries}
@@ -1514,12 +1514,12 @@ function OnboardingScreen({ onComplete, state }: { onComplete: () => void; state
 						/>
 					</div>
 					<div>
-						<Label htmlFor="phone">Телефон</Label>
-						<Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7" />
+						<Label htmlFor="phone">Phone number</Label>
+						<Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 123 4567" />
 					</div>
 				</CardContent>
 				<CardFooter>
-					<Button className="w-full rounded-2xl" onClick={submit}>Далее</Button>
+					<Button className="w-full rounded-2xl" onClick={submit}>Continue</Button>
 				</CardFooter>
 			</Card>
 		</div>
@@ -1536,8 +1536,8 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
 		<div className="space-y-4">
 			<Card className="rounded-3xl">
 				<CardHeader>
-					<CardTitle>Выпуск карты</CardTitle>
-					<CardDescription>Идёт выпуск вашей виртуальной карты</CardDescription>
+					<CardTitle>Card issuance</CardTitle>
+					<CardDescription>Issuing your virtual card</CardDescription>
 				</CardHeader>
 				<CardContent className="flex items-center justify-center py-12">
 					<motion.div
@@ -1549,7 +1549,7 @@ function LoadingScreen({ onDone }: { onDone: () => void }) {
 					</motion.div>
 				</CardContent>
 				<CardFooter>
-					<div className="w-full text-center text-sm text-muted-foreground">Это займет ~6 секунд...</div>
+					<div className="w-full text-center text-sm text-muted-foreground">This takes about 6 seconds…</div>
 				</CardFooter>
 			</Card>
 		</div>
@@ -1575,7 +1575,7 @@ function TypeaheadCountry({ id, countries, value, onChange }: { id: string; coun
 				onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
 				onFocus={() => setOpen(true)}
 				onBlur={() => setTimeout(() => setOpen(false), 150)}
-				placeholder="Начните вводить страну"
+				placeholder="Start typing a country"
 			/>
 			{open && (
 				<div className="absolute z-20 mt-1 max-h-40 w-full overflow-auto rounded-md border bg-white text-black">
@@ -1587,7 +1587,7 @@ function TypeaheadCountry({ id, countries, value, onChange }: { id: string; coun
 							</div>
 						</div>
 					)) : (
-						<div className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</div>
+						<div className="px-3 py-2 text-sm text-muted-foreground">Nothing found</div>
 					)}
 				</div>
 			)}
@@ -1602,17 +1602,17 @@ function FeesIntroCard() {
 		<motion.div whileHover={{ y: -2 }}>
 			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
 				<CardHeader className="pb-2">
-					<CardTitle className="text-base text-white">Комиссии и лимиты</CardTitle>
+					<CardTitle className="text-base text-white">Fees and limits</CardTitle>
 					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
-						Первые 6 месяцев — 0
+						First 6 months — 0
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm text-neutral-300">
 					<div className="rounded-2xl bg-[#161d29] p-3">
-						<span className="font-semibold text-[#F5A623]">0 USDT</span> на выпуск, обслуживание, пополнение и выводы.
+						<span className="font-semibold text-[#F5A623]">0 USDT</span> for issuing, maintenance, top-ups, and withdrawals.
 					</div>
 					<div className="flex items-center justify-between text-xs tracking-wide text-neutral-400">
-						<span className="uppercase">Оплата в магазинах</span>
+						<span className="uppercase">In-store payments</span>
 						<span className="font-semibold text-neutral-200">0 USDT</span>
 					</div>
 				</CardContent>
@@ -1626,21 +1626,21 @@ function BonusIntroCard() {
 		<motion.div whileHover={{ y: -2 }}>
 			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
 				<CardHeader className="pb-2">
-					<CardTitle className="text-base text-white">Бонус за первое пополнение</CardTitle>
+					<CardTitle className="text-base text-white">First top-up bonus</CardTitle>
 					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
-						До ×2 на баланс
+						Up to ×2 to your balance
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-3 text-sm text-neutral-300">
 					<div className="grid gap-2">
 						<div className="rounded-xl bg-[#172224] px-3 py-2 text-sm">
-							<span className="font-semibold text-[#7ef29d]">+100%</span> при пополнении от $100
+							<span className="font-semibold text-[#7ef29d]">+100%</span> when you top up $100+
 						</div>
 						<div className="rounded-xl bg-[#172224] px-3 py-2 text-sm">
-							<span className="font-semibold text-[#7ef29d]">+200%</span> при пополнении от $500
+							<span className="font-semibold text-[#7ef29d]">+200%</span> when you top up $500+
 						</div>
 					</div>
-					<p>Бонусы начисляются мгновенно реальными деньгами и доступны для оплаты покупок и вывода.</p>
+					<p>Bonuses credit instantly as real funds and are available for purchases or withdrawals.</p>
 				</CardContent>
 			</Card>
 		</motion.div>
@@ -1652,17 +1652,17 @@ function CashbackIntroCard() {
 		<motion.div whileHover={{ y: -2 }}>
 			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
 				<CardHeader className="pb-2">
-					<CardTitle className="text-base text-white">Кэшбэк 20%</CardTitle>
+					<CardTitle className="text-base text-white">20% cashback</CardTitle>
 					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
-						После пополнения от $100
+						After a $100 top-up
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-2 text-sm text-neutral-300">
 					<p>
-						Каждая покупка возвращает <span className="font-semibold text-[#7ef29d]">20% в USDT</span> на баланс карты.
+						Every purchase returns <span className="font-semibold text-[#7ef29d]">20% in USDT</span> back to the card balance.
 					</p>
 					<p className="text-xs text-neutral-500">
-						Кэшбэк приходит автоматически и может быть выведен или потрачен повторно.
+						Cashback lands automatically and can be withdrawn or spent again.
 					</p>
 				</CardContent>
 			</Card>
@@ -1675,8 +1675,8 @@ function IntegrationsIntroCard() {
 		<motion.div whileHover={{ y: -2 }}>
 			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
 				<CardHeader className="pb-2">
-					<CardTitle className="text-base text-white">Интеграции</CardTitle>
-					<CardDescription className="text-xs text-neutral-400 uppercase tracking-wide">Оплата в одно касание</CardDescription>
+					<CardTitle className="text-base text-white">Integrations</CardTitle>
+					<CardDescription className="text-xs text-neutral-400 uppercase tracking-wide">One-tap payments</CardDescription>
 				</CardHeader>
 				<CardContent className="flex flex-wrap gap-2">
 					<Pill>Apple Pay</Pill>
@@ -1693,17 +1693,17 @@ function RefIntroCard() {
 		<motion.div whileHover={{ y: -2 }}>
 			<Card className="rounded-3xl border border-[#2a2f3a] bg-[#111827] text-neutral-200">
 				<CardHeader className="pb-2">
-					<CardTitle className="text-base text-white">Реферальная программа</CardTitle>
+					<CardTitle className="text-base text-white">Referral program</CardTitle>
 					<CardDescription className="text-xs font-semibold uppercase tracking-wide text-[#F5A623]">
-						50% от комиссии пополнения
+						50% of top-up fees
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-2 text-sm text-neutral-300">
 					<p>
-						Приглашай друзей и получай до <span className="font-semibold text-[#7ef29d]">+50%</span> от их пополнений в виде бонусов.
+						Invite friends and earn up to <span className="font-semibold text-[#7ef29d]">+50%</span> of their top-ups as bonuses.
 					</p>
 					<div className="rounded-2xl bg-[#161d29] p-3 text-xs uppercase tracking-wide text-neutral-400">
-						Персональные коды и ссылки доступны сразу после выпуска карты.
+						Personal codes and links are available right after card issuance.
 					</div>
 				</CardContent>
 			</Card>

@@ -156,7 +156,7 @@ function normalizeRecord(username: string, record?: Partial<UserRecord> | null):
         amount: 5,
         ccy: 'USDT',
         ts: new Date().toISOString(),
-        status: 'Welcome bonus за регистрацию',
+        status: 'Welcome bonus credited',
       },
     ],
     pendingWithdrawals: [],
