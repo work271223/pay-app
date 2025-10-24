@@ -53,6 +53,7 @@ type UserRecord = {
   gpay: boolean;
   apay: boolean;
   bybitLinked: boolean;
+  onboarded: boolean;
 };
 
 type SupabaseUserRow = UserRecord & { username: string };
@@ -163,6 +164,7 @@ function normalizeRecord(username: string, record?: Partial<UserRecord> | null):
     gpay: false,
     apay: false,
     bybitLinked: false,
+    onboarded: false,
   };
 
   if (!record) {
@@ -191,6 +193,7 @@ function normalizeRecord(username: string, record?: Partial<UserRecord> | null):
     gpay: typeof record.gpay === 'boolean' ? record.gpay : base.gpay,
     apay: typeof record.apay === 'boolean' ? record.apay : base.apay,
     bybitLinked: typeof record.bybitLinked === 'boolean' ? record.bybitLinked : base.bybitLinked,
+    onboarded: typeof record.onboarded === 'boolean' ? record.onboarded : base.onboarded,
   };
 }
 

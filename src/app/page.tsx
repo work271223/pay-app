@@ -103,6 +103,7 @@ type UserRecord = {
 	gpay: boolean;
 	apay: boolean;
 	bybitLinked: boolean;
+	onboarded: boolean;
 };
 
 type ReferralStats = {
@@ -167,6 +168,7 @@ function normalizeRecord(username: string, record: UserRecord | undefined): User
 		...base,
 		...record,
 		profile: normalizeProfile(record.profile),
+		onboarded: typeof record.onboarded === "boolean" ? record.onboarded : base.onboarded,
 	};
 	return normalized;
 }
@@ -257,6 +259,7 @@ function defaultRecord(username: string): UserRecord {
 		gpay: false,
 		apay: false,
 		bybitLinked: false,
+		onboarded: false,
 	};
 }
 
@@ -462,6 +465,7 @@ export default function HomePage() {
 	const [cardActive, setCardActive] = useState(false);
 	const [txs, setTxs] = useState<Transaction[]>([]);
 	const [pendingWithdrawals, setPendingWithdrawals] = useState<PendingWithdrawal[]>([]);
+	const [hasOnboarded, setHasOnboarded] = useState(false);
 
 	const card = useMemo(() => makeCard(username), [username]);
 	const maskedCard = card.pan;
@@ -488,6 +492,11 @@ export default function HomePage() {
 			setCardActive(record.cardActive);
 			setTxs(record.txs);
 			setPendingWithdrawals(record.pendingWithdrawals);
+			const isOnboarded = record.onboarded || record.cardActive || record.txs.length > 1;
+			setHasOnboarded(isOnboarded);
+			if (isOnboarded) {
+				setScreen("app");
+			}
 		})();
 		return () => { mounted = false; };
 	}, [username]);
@@ -505,10 +514,11 @@ export default function HomePage() {
 				cardActive,
 				txs,
 				pendingWithdrawals,
+				onboarded: hasOnboarded || current.onboarded,
 			}));
 		}, 400);
 		return () => clearTimeout(id);
-	}, [username, profile, balance, gpay, apay, bybitLinked, cardActive, txs, pendingWithdrawals]);
+	}, [username, profile, balance, gpay, apay, bybitLinked, cardActive, txs, pendingWithdrawals, hasOnboarded]);
 
 	return (
 		<div
@@ -553,7 +563,7 @@ export default function HomePage() {
 							className="space-y-4"
 						>
 							<HeaderCompact />
-							<LoadingScreen onDone={() => setScreen("app")} />
+							<LoadingScreen onDone={() => { setHasOnboarded(true); setScreen("app"); }} />
 						</motion.div>
 					) : (
 						<motion.div
