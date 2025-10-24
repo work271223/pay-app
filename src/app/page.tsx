@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-	AlertTriangle,
 	ArrowDownToDot,
 	ArrowRight,
 	ArrowUpFromDot,
@@ -286,9 +285,9 @@ async function loadUser(username: string): Promise<UserRecord> {
       writeDB(db);
       return db.users[username];
     }
-  } catch (e) {
-    // network/server error - fall through to local
-  }
+	} catch {
+		// network/server error - fall through to local
+	}
 
   // Local fallback: return cached value if present, otherwise create default and persist locally.
   const local = safeParseDB(window.localStorage.getItem(STORAGE_KEY));
@@ -317,18 +316,18 @@ async function saveUser(username: string, updater: (current: UserRecord) => User
 	db.users[username] = updated;
 	writeDB(db);
 
-	if (typeof window === 'undefined') return;
+		if (typeof window === 'undefined') return;
 
-	// Best-effort POST to server (await to reduce races). Fail silently.
-	try {
-		await fetch(`/api/user/${encodeURIComponent(username)}`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(updated),
-		});
-	} catch (e) {
-		// ignore network errors; local cache still preserved
-	}
+		// Best-effort POST to server (await to reduce races). Fail silently.
+		try {
+			await fetch(`/api/user/${encodeURIComponent(username)}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(updated),
+			});
+		} catch {
+			// ignore network errors; local cache still preserved
+		}
 }
 
 function formatAmount(amount: number) {
