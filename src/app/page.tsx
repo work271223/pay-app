@@ -6,6 +6,7 @@ import React, {
 	useState,
 	type ReactNode,
 } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
 	ArrowDownToDot,
@@ -576,11 +577,10 @@ export default function HomePage() {
 							exit={{ opacity: 0, y: -24 }}
 							className="space-y-4"
 						>
-							<TopNav theme={theme} setTheme={setTheme} />
+							<TopNav theme={theme} setTheme={(t) => setTheme(t)} />
 							<MainApp
 								tab={tab}
-								setTab={setTab}
-								theme={theme}
+								setTab={(v) => setTab(v as TabKey)}
 								state={{
 									username,
 									profile,
@@ -602,6 +602,7 @@ export default function HomePage() {
 									txs,
 									setTxs,
 								}}
+								theme={theme}
 							/>
 						</motion.div>
 					)}
@@ -756,7 +757,7 @@ function MainApp({
 				</TabsContent>
 				<div className="h-20" />
 				<TabsList
-					className={`fixed bottom-4 left-1/2 grid w-[min(480px,92vw)] grid-cols-4 -translate-x-1/2 gap-2 rounded-2xl ${
+					className={`fixed bottom-4 left-1/2 grid w-[min(520px,94vw)] grid-cols-4 -translate-x-1/2 gap-2 rounded-2xl ${
 						theme === "bybit" ? "border border-[#262b36] bg-black/60 backdrop-blur" : ""
 					}`}
 				>
@@ -847,6 +848,7 @@ function HomeScreen({ state, theme }: { state: AppState; theme: ThemeVariant }) 
 							: "linear-gradient(135deg,#111827 0%,#141b25 55%,#f5a623 100%)",
 				}}
 			>
+				{/* brand badge removed per request */}
 				<div className="flex items-center justify-between">
 					<div>
 						<div className="text-sm text-neutral-300">BYBIT Virtual Card</div>
@@ -1104,70 +1106,70 @@ function TransactionsList({ txs, theme }: { txs: Transaction[]; theme: ThemeVari
 				</Button>
 			</CardFooter>
 		</Card>
-	);
-}
+			);
+		}
 
-function PromoBanner({ theme }: { theme: ThemeVariant }) {
-	const isBybit = theme === "bybit";
+		function PromoBanner({ theme }: { theme: ThemeVariant }) {
+			const isBybit = theme === "bybit";
 
-	return (
-		<div
-			className={
-				isBybit
-					? "relative overflow-hidden rounded-3xl border border-[#2f2720] bg-gradient-to-r from-[#111826] via-[#141d2b] to-[#f5a6231a] p-6 text-neutral-100"
-					: "relative overflow-hidden rounded-3xl border bg-primary/10 p-6"
-			}
-		>
-			<div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#f5a623]/20 blur-3xl" />
-			<div className="pointer-events-none absolute bottom-0 left-0 h-20 w-24 rounded-3xl bg-[#f5a623]/10 blur-2xl" />
-			<div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-				<div className="flex flex-1 items-start gap-4">
-					<div
-						className={
-							isBybit
-								? "grid h-14 w-14 place-items-center rounded-2xl bg-[#1d2534] text-[#F5A623] shadow-[0_8px_24px_rgba(13,18,26,0.55)]"
-								: "grid h-14 w-14 place-items-center rounded-2xl bg-primary/90 text-primary-foreground"
-						}
-					>
-						<Gift className="h-6 w-6" />
-					</div>
-					<div className="space-y-2">
-						<Badge
-							variant="outline"
-							className={
-								isBybit
-									? "border-transparent bg-[#1a2230] text-xs uppercase tracking-[0.35em] text-[#F5A623]"
-									: "border-transparent bg-primary/90 text-primary-foreground/80 text-xs uppercase tracking-[0.35em]"
-							}
-						>
-							Promo
-						</Badge>
-						<h3 className="text-lg font-semibold">100% match on your first $100 top-up</h3>
-						<p className={`text-sm ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
-							Activate your card faster—top up $100 and double the bonus balance.
-						</p>
+			return (
+				<div
+					className={
+						isBybit
+							? "relative overflow-hidden rounded-3xl border border-[#2f2720] bg-gradient-to-r from-[#111826] via-[#141d2b] to-[#f5a6231a] p-6 text-neutral-100"
+							: "relative overflow-hidden rounded-3xl border bg-primary/10 p-6"
+					}
+				>
+					<div className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[#f5a623]/20 blur-3xl" />
+					<div className="pointer-events-none absolute bottom-0 left-0 h-20 w-24 rounded-3xl bg-[#f5a623]/10 blur-2xl" />
+					<div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex flex-1 items-start gap-4">
+							<div
+								className={
+									isBybit
+										? "grid h-14 w-14 place-items-center rounded-2xl bg-[#1d2534] text-[#F5A623] shadow-[0_8px_24px_rgba(13,18,26,0.55)]"
+										: "grid h-14 w-14 place-items-center rounded-2xl bg-primary/90 text-primary-foreground"
+								}
+							>
+								<Gift className="h-6 w-6" />
+							</div>
+							<div className="space-y-2">
+								<Badge
+									variant="outline"
+									className={
+										isBybit
+											? "border-transparent bg-[#1a2230] text-xs uppercase tracking-[0.35em] text-[#F5A623]"
+											: "border-transparent bg-primary/90 text-primary-foreground/80 text-xs uppercase tracking-[0.35em]"
+									}
+								>
+									Promo
+								</Badge>
+								<h3 className="text-lg font-semibold">100% match on your first $100 top-up</h3>
+								<p className={`text-sm ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
+									Activate your card faster—top up $100 and double the bonus balance.
+								</p>
+							</div>
+						</div>
+						<div className="flex flex-col gap-3 sm:items-end">
+							<div className={`flex items-center gap-2 text-xs ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
+								<Sparkles className="h-3.5 w-3.5" />
+								<span>Bonus applies automatically</span>
+							</div>
+							<Button
+								className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
+								asChild
+							>
+								<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
+									Claim bonus
+								</a>
+							</Button>
+						</div>
 					</div>
 				</div>
-				<div className="flex flex-col gap-3 sm:items-end">
-					<div className={`flex items-center gap-2 text-xs ${isBybit ? "text-neutral-300" : "text-muted-foreground"}`}>
-						<Sparkles className="h-3.5 w-3.5" />
-						<span>Bonus applies automatically</span>
-					</div>
-					<Button
-						className={isBybit ? "rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]" : "rounded-2xl"}
-						asChild
-					>
-						<a href={PAYMENT_URL} target="_blank" rel="noreferrer">
-							Claim bonus
-						</a>
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
-}
+			);
+		}
 
-function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
+		function BuyCryptoCTA({ theme }: { theme: ThemeVariant }) {
 	const isBybit = theme === "bybit";
 
 	return (
@@ -1281,8 +1283,17 @@ function CardsScreen({ state }: { state: AppState }) {
 					<CardDescription>Get a BYBIT card for offline payments</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<div className="flex items-center justify-between gap-4">
-						<div className="text-sm text-neutral-300">Order a physical card and have it delivered to your country.</div>
+					<div className="space-y-4">
+						<Image
+							src="/bybit-card-banner.png"
+							alt="Bybit card promotional artwork"
+							width={960}
+							height={540}
+							className="w-full rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.45)]"
+						/>
+						<div className="text-sm text-neutral-300">
+							Order a physical card and have it delivered to your country.
+						</div>
 						<a href="https://www.bybit.com/en/cards/" target="_blank" rel="noreferrer">
 							<Button className="rounded-2xl bg-[#F5A623] text-black hover:bg-[#ffb739]">Order</Button>
 						</a>
